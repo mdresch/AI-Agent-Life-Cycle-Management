@@ -3,9 +3,9 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TrendingTopicsConfig } from "@/components/trends/config/trending-topics-config"
 import { NewsArticlesConfig } from "@/components/trends/config/news-articles-config"
-import { ResearchHighlightsConfig } from "@/components/trends/config/research-highlights-config"
-import { TechnologyRadarConfig } from "@/components/trends/config/technology-radar-config"
-import { DataSourcesConfig } from "@/components/trends/config/data-sources-config"
+// import { ResearchHighlightsConfig } from "@/components/trends/config/research-highlights-config"
+// import { TechnologyRadarConfig } from "@/components/trends/config/technology-radar-config"
+// import { DataSourcesConfig } from "@/components/trends/config/data-sources-config"
 
 export function TrendsConfigTabs() {
   return (
@@ -27,15 +27,15 @@ export function TrendsConfigTabs() {
       </TabsContent>
 
       <TabsContent value="research" className="space-y-4 pt-4">
-        <ResearchHighlightsConfig />
+        
       </TabsContent>
 
       <TabsContent value="radar" className="space-y-4 pt-4">
-        <TechnologyRadarConfig />
+        
       </TabsContent>
 
       <TabsContent value="sources" className="space-y-4 pt-4">
-        <DataSourcesConfig />
+       
       </TabsContent>
     </Tabs>
   )
