@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/site-footer"
 import { AuthProvider } from "@/contexts/auth-context"
 import { DevModeProvider } from "@/contexts/dev-mode-context"
 import { Toaster } from "@/components/ui/toaster"
+import { Analytics } from "@vercel/analytics/react"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -30,6 +31,7 @@ export default function RootLayout({
               <div className="relative flex min-h-screen flex-col">
                 <SiteHeader />
                 <div className="flex-1">{children}</div>
+                <Analytics />
                 <SiteFooter />
               </div>
               <Toaster />
