@@ -147,12 +147,12 @@ enum AgentType {
 }
 
 enum ModelProvider {
-  GPT_4O
-  GPT_4
-  GPT_3_5_TURBO
-  CLAUDE_3_OPUS
-  CLAUDE_3_SONNET
-  LLAMA_3_70B
+  GPT_4O          @map("gpt-4o")
+  GPT_4           @map("gpt-4")
+  GPT_3_5_TURBO   @map("gpt-3.5-turbo")
+  CLAUDE_3_OPUS   @map("claude-3-opus")
+  CLAUDE_3_SONNET @map("claude-3-sonnet")
+  LLAMA_3_70B     @map("llama-3-70b")
 }
 
 enum AgentStatus {
