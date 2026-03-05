@@ -137,7 +137,7 @@ Each agent operates in its own branch and submits a pull request targeting `main
 
 ### Agent 12 — Testing & QA Agent
 - **Branch:** `feat/testing`
-- **Files owned:** `__tests__/**`, `e2e/**`, `jest.config.ts`, `playwright.config.ts`
+- **Files owned:** `tests/**`, `vitest.config.ts`, `playwright.config.ts`
 - **Depends on:** All feature agents
 - **Plan:** [12-testing-qa.md](./12-testing-qa.md)
 
