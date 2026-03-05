@@ -11,14 +11,14 @@ interface BusinessAgentsChartProps {
 
 export function BusinessAgentsChart({ data }: BusinessAgentsChartProps) {
   const COLORS = [
-    "#0ea5e9", // sky
-    "#10b981", // emerald
-    "#f59e0b", // amber
-    "#8b5cf6", // violet
-    "#ec4899", // pink
-    "#f43f5e", // rose
-    "#6366f1", // indigo
-    "#84cc16", // lime
+    "hsl(var(--chart-1))",
+    "hsl(var(--chart-2))",
+    "hsl(var(--chart-3))",
+    "hsl(var(--chart-4))",
+    "hsl(var(--chart-5))",
+    "hsl(var(--chart-1) / 0.7)",
+    "hsl(var(--chart-2) / 0.7)",
+    "hsl(var(--chart-3) / 0.7)",
   ]
 
   return (
@@ -30,7 +30,7 @@ export function BusinessAgentsChart({ data }: BusinessAgentsChartProps) {
           cy="50%"
           labelLine={false}
           outerRadius={80}
-          fill="#8884d8"
+          fill="hsl(var(--chart-1))"
           dataKey="value"
           nameKey="name"
           label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
@@ -43,7 +43,7 @@ export function BusinessAgentsChart({ data }: BusinessAgentsChartProps) {
           formatter={(value: number, name: string) => [`${value} agents`, name]}
           contentStyle={{
             borderRadius: "8px",
-            border: "1px solid #e2e8f0",
+            border: "1px solid hsl(210 40% 88%)",
             boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
           }}
         />

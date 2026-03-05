@@ -38,7 +38,7 @@ export function TechnologyRadarChart({ data }: TechnologyRadarChartProps) {
     const maxRadius = Math.min(centerX, centerY) * 0.9
 
     // Draw radar rings
-    ctx.strokeStyle = "#e2e8f0"
+    ctx.strokeStyle = "hsl(210 40% 88%)"
     ctx.lineWidth = 1
 
     for (let i = 1; i <= 4; i++) {
@@ -61,7 +61,7 @@ export function TechnologyRadarChart({ data }: TechnologyRadarChartProps) {
 
     // Draw quadrant labels
     ctx.font = "12px sans-serif"
-    ctx.fillStyle = "#64748b"
+    ctx.fillStyle = "hsl(215 35% 45%)"
     ctx.textAlign = "center"
     ctx.fillText("Techniques", centerX, centerY - maxRadius - 10)
     ctx.fillText("Tools", centerX + maxRadius + 30, centerY)
@@ -79,19 +79,19 @@ export function TechnologyRadarChart({ data }: TechnologyRadarChartProps) {
       let color
       switch (point.category) {
         case "adopt":
-          color = "#10b981" // green
+          color = "hsl(152 60% 35%)" // success green
           break
         case "trial":
-          color = "#3b82f6" // blue
+          color = "hsl(210 80% 55%)" // chart-1 blue
           break
         case "assess":
-          color = "#f59e0b" // amber
+          color = "hsl(38 90% 50%)"  // warning amber
           break
         case "hold":
-          color = "#ef4444" // red
+          color = "hsl(0 84% 60%)"   // destructive red
           break
         default:
-          color = "#94a3b8" // gray
+          color = "hsl(215 25% 60%)" // muted-foreground
       }
 
       // Draw circle
@@ -105,7 +105,7 @@ export function TechnologyRadarChart({ data }: TechnologyRadarChartProps) {
 
       // Draw label
       ctx.font = "10px sans-serif"
-      ctx.fillStyle = "#0f172a"
+      ctx.fillStyle = "hsl(220 71% 14%)"
       ctx.textAlign = "center"
       ctx.fillText(point.name, x, y + radius + 12)
     })

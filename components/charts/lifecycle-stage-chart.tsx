@@ -13,7 +13,12 @@ interface LifecycleStageChartProps {
 }
 
 export function LifecycleStageChart({ data }: LifecycleStageChartProps) {
-  const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444"]
+  const COLORS = [
+    "hsl(var(--chart-1))",
+    "hsl(var(--chart-2))",
+    "hsl(var(--chart-3))",
+    "hsl(var(--chart-4))",
+  ]
 
   return (
     <ResponsiveContainer width="100%" height="100%">
@@ -24,7 +29,7 @@ export function LifecycleStageChart({ data }: LifecycleStageChartProps) {
           cy="50%"
           labelLine={false}
           outerRadius={80}
-          fill="#8884d8"
+          fill="hsl(var(--chart-1))"
           dataKey="count"
           nameKey="name"
           label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
@@ -37,7 +42,7 @@ export function LifecycleStageChart({ data }: LifecycleStageChartProps) {
           formatter={(value: number, name: string) => [`${value} agents`, name]}
           contentStyle={{
             borderRadius: "8px",
-            border: "1px solid #e2e8f0",
+            border: "1px solid hsl(210 40% 88%)",
             boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
           }}
         />

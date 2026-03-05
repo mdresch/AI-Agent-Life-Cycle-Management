@@ -29,14 +29,14 @@ export function StudioActivityChart() {
         <Tooltip
           contentStyle={{
             borderRadius: "8px",
-            border: "1px solid #e2e8f0",
+            border: "1px solid hsl(210 40% 88%)",
             boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
           }}
         />
         <Line
           type="monotone"
           dataKey="projects"
-          stroke="#3b82f6"
+          stroke="hsl(var(--chart-1))"
           strokeWidth={2}
           dot={{ r: 4, strokeWidth: 2 }}
           activeDot={{ r: 6, strokeWidth: 2 }}
@@ -44,7 +44,7 @@ export function StudioActivityChart() {
         <Line
           type="monotone"
           dataKey="training"
-          stroke="#10b981"
+          stroke="hsl(var(--chart-2))"
           strokeWidth={2}
           dot={{ r: 4, strokeWidth: 2 }}
           activeDot={{ r: 6, strokeWidth: 2 }}
@@ -52,7 +52,7 @@ export function StudioActivityChart() {
         <Line
           type="monotone"
           dataKey="prompts"
-          stroke="#f59e0b"
+          stroke="hsl(var(--chart-4))"
           strokeWidth={2}
           dot={{ r: 4, strokeWidth: 2 }}
           activeDot={{ r: 6, strokeWidth: 2 }}

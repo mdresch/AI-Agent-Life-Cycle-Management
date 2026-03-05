@@ -29,7 +29,7 @@ export function PerformanceChart() {
         <Tooltip
           contentStyle={{
             borderRadius: "8px",
-            border: "1px solid #e2e8f0",
+            border: "1px solid hsl(210 40% 88%)",
             boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
           }}
           formatter={(value: number) => [`${value}%`, "Success Rate"]}
@@ -37,7 +37,7 @@ export function PerformanceChart() {
         <Line
           type="monotone"
           dataKey="value"
-          stroke="#10b981"
+          stroke="hsl(var(--chart-2))"
           strokeWidth={2}
           dot={{ r: 4, strokeWidth: 2 }}
           activeDot={{ r: 6, strokeWidth: 2 }}
