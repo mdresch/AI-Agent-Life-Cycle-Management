@@ -96,13 +96,36 @@ export default defineConfig({
 
 **File:** `tests/setup.ts`
 
+> **TypeScript setup required:** Use the Vitest-specific jest-dom entrypoint (`@testing-library/jest-dom/vitest`) — **not** the default `@testing-library/jest-dom` entrypoint, which targets Jest globals and will cause type errors under Vitest. Also add `"@testing-library/jest-dom"` to `compilerOptions.types` in `tsconfig.json` and set `globals: true` in `vitest.config.ts` so `describe`/`it`/`expect` are globally available without explicit imports.
+
 ```typescript
-import '@testing-library/jest-dom';
+// Use the Vitest-specific entrypoint to avoid TypeScript errors with Vitest globals
+import '@testing-library/jest-dom/vitest';
 import { server } from './mocks/server';
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'warn' }));
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
+```
+
+**`tsconfig.json` — add to `compilerOptions`:**
+
+```json
+{
+  "compilerOptions": {
+    "types": ["@testing-library/jest-dom"]
+  }
+}
+```
+
+**`vitest.config.ts` — ensure `globals: true`:**
+
+```typescript
+test: {
+  globals: true,
+  setupFiles: ['./tests/setup.ts'],
+  environment: 'jsdom',
+}
 ```
 
 ### 3.3 MSW Server
@@ -396,6 +419,7 @@ FLOW: Revoke API Key
 **`tests/e2e/accessibility.spec.ts`**
 
 ```typescript
+import { test, expect } from '@playwright/test';
 import AxeBuilder from "@axe-core/playwright";
 
 const pagesToTest = ["/", "/agents", "/lifecycle", "/analytics", 

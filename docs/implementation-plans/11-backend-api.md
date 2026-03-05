@@ -64,9 +64,43 @@ datasource db {
 }
 
 // ── Auth (Auth.js Prisma adapter tables) ──────────────────
-model Account { ... }   // standard Auth.js table
-model Session { ... }   // standard Auth.js table
-model VerificationToken { ... }
+// Full model definitions required by @auth/prisma-adapter.
+// Copy exactly from: https://authjs.dev/getting-started/adapters/prisma
+// These four models must be present for `prisma migrate dev` to succeed.
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
 
 // ── Users & Teams ─────────────────────────────────────────
 model User {
@@ -83,11 +117,17 @@ model User {
   apiKeys         ApiKey[]
 }
 
+// Enum naming convention: Prisma uses UPPER_SNAKE_CASE identifiers; @map() values
+// define the lowercase strings stored in the DB and used in API payloads / lib/types/index.ts.
+// Feature agents must use the @map() string literals (e.g. "owner") in TS type contracts,
+// NOT the Prisma enum identifiers (e.g. Role.OWNER). This keeps DB schema and frontend types
+// consistent without a manual mapping layer.
+
 enum Role {
-  OWNER
-  ADMIN
-  MEMBER
-  VIEWER
+  OWNER  @map("owner")
+  ADMIN  @map("admin")
+  MEMBER @map("member")
+  VIEWER @map("viewer")
 }
 
 model Team {
@@ -137,13 +177,13 @@ model Agent {
 }
 
 enum AgentType {
-  CUSTOMER_SUPPORT
-  ANALYTICS
-  CREATIVE
-  PRODUCTIVITY
-  RESEARCH
-  COMMUNICATION
-  CUSTOM
+  CUSTOMER_SUPPORT @map("customer-support")
+  ANALYTICS        @map("analytics")
+  CREATIVE         @map("creative")
+  PRODUCTIVITY     @map("productivity")
+  RESEARCH         @map("research")
+  COMMUNICATION    @map("communication")
+  CUSTOM           @map("custom")
 }
 
 enum ModelProvider {
@@ -156,16 +196,16 @@ enum ModelProvider {
 }
 
 enum AgentStatus {
-  ACTIVE
-  INACTIVE
-  ERROR
+  ACTIVE   @map("active")
+  INACTIVE @map("inactive")
+  ERROR    @map("error")
 }
 
 enum LifecycleStage {
-  DEVELOPMENT
-  PRODUCTION
-  MAINTENANCE
-  RETIREMENT
+  DEVELOPMENT @map("development")
+  PRODUCTION  @map("production")
+  MAINTENANCE @map("maintenance")
+  RETIREMENT  @map("retirement")
 }
 
 // ── Lifecycle ─────────────────────────────────────────────
