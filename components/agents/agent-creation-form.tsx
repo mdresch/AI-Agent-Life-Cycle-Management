@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
 
 const agentFormSchema = z.object({
   name: z.string().min(3, {
@@ -68,6 +69,7 @@ export function AgentCreationForm() {
 
     console.log(data)
     setIsSubmitting(false)
+    toast.success(`Agent "${data.name}" created successfully!`)
     router.push("/agents")
   }
 

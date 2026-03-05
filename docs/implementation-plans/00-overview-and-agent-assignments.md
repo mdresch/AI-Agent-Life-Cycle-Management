@@ -36,13 +36,20 @@ The platform is a production-ready web application for the **end-to-end governan
 |---|---|---|
 | Design system — navy blue tokens, typography, component variants | [01-design-system.md](./01-design-system.md) | ✅ Done |
 
-### Phase 1 — Core Modules (can run in parallel after Phase 0)
-| Work Item | Plan File |
-|---|---|
-| Dashboard | [02-dashboard.md](./02-dashboard.md) |
-| Agent Management | [03-agent-management.md](./03-agent-management.md) |
-| Lifecycle Management | [07-lifecycle-management.md](./07-lifecycle-management.md) |
-| Authentication & Settings | [10-settings-auth.md](./10-settings-auth.md) |
+### Phase 1 — Core Modules ✅ COMPLETED
+| Work Item | Plan File | Status |
+|---|---|---|
+| Dashboard | [02-dashboard.md](./02-dashboard.md) | ✅ Done |
+| Agent Management | [03-agent-management.md](./03-agent-management.md) | ✅ Done |
+| Lifecycle Management | [07-lifecycle-management.md](./07-lifecycle-management.md) | ✅ Done |
+| Authentication & Settings | [10-settings-auth.md](./10-settings-auth.md) | ✅ Done |
+
+**Phase 1 Implementation Summary (completed 2026-03-05):**
+- **Foundation:** Shared types (`lib/types/index.ts`), mock data (`lib/mock-data/`), React hooks (`lib/hooks/`), Zod validation schemas (`lib/schemas/agent-schema.ts`).
+- **Dashboard:** `KpiCard` component with trend indicators, `TopAgents` with progress bars & trend arrows, `RecentActivity` with event-type icons.
+- **Agent Management:** Delete confirmation dialog, activate/pause toggle with toast notifications, duplicate agent, type-filter dropdown, empty state, client-side filtering via `useAgents` hook.
+- **Lifecycle Management:** `LifecycleHeader` KPI cards, stage progress bars, colour-coded stage transition badges, 3-step guided retirement workflow.
+- **Auth & Settings:** Login page (`/login`) with demo credentials (`demo@example.com` / `demo1234`), cookie-based session middleware, forgot-password placeholder, updated `UserNav` with sign-out, `usePermission` RBAC guard hook.
 
 ### Phase 2 — Extended Modules (can run in parallel after Phase 1)
 | Work Item | Plan File |

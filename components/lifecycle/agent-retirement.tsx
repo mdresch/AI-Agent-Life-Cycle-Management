@@ -236,7 +236,7 @@ export function AgentRetirement() {
                 variant="outline"
                 onClick={() => {
                   if (step === 1) reset()
-                  else setStep((s) => (s === 2 ? 1 : 2) as Step)
+                  else setStep((s) => (typeof s === "number" ? (s - 1) : 1) as Step)
                 }}
               >
                 {step === 1 ? "Cancel" : "Back"}

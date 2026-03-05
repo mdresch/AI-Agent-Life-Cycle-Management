@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useCallback } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import type { Agent, AgentStatus, CreateAgentPayload } from "@/lib/types"
 import { mockAgents } from "@/lib/mock-data/agents"
 
@@ -14,13 +14,13 @@ function notify() {
 export function useAgents(query?: string, typeFilter?: string) {
   const [, forceUpdate] = useState(0)
 
-  useState(() => {
+  useEffect(() => {
     const rerender = () => forceUpdate((n) => n + 1)
     listeners.push(rerender)
     return () => {
       listeners = listeners.filter((fn) => fn !== rerender)
     }
-  })
+  }, [])
 
   const agents = useMemo(() => {
     return agentStore.filter((agent) => {

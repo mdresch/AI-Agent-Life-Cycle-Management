@@ -29,7 +29,7 @@ const kpiMetrics: KpiMetric[] = [
     value: "1.2",
     unit: "s",
     trend: "up",
-    trendValue: "-0.3s from last week",
+    trendValue: "improved -0.3s vs last week",
   },
   {
     label: "Success Rate",

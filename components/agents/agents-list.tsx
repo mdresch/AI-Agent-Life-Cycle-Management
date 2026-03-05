@@ -87,7 +87,10 @@ function AgentCard({
                 <span>Edit</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onToggleStatus(agent)}>
+            <DropdownMenuItem
+              onClick={() => onToggleStatus(agent)}
+              disabled={agent.status === "error"}
+            >
               {isActive ? (
                 <>
                   <Pause className="mr-2 h-4 w-4" />
@@ -147,6 +150,7 @@ export function AgentsList() {
   const { duplicateAgent } = useDuplicateAgent()
 
   async function handleToggleStatus(agent: Agent) {
+    if (agent.status === "error") return
     const newStatus = agent.status === "active" ? "inactive" : "active"
     await updateAgent(agent.id, { status: newStatus })
     toast.success(
