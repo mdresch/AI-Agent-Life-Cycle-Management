@@ -30,9 +30,9 @@ export function AgentActivityChart({ data, type }: AgentActivityChartProps) {
         />
         <Tooltip />
         <Legend />
-        <Bar dataKey="Agent1" fill="#8884d8" />
-        <Bar dataKey="Agent2" fill="#82ca9d" />
-        <Bar dataKey="Agent3" fill="#ffc658" />
+        <Bar dataKey="Agent1" fill="hsl(var(--chart-1))" />
+        <Bar dataKey="Agent2" fill="hsl(var(--chart-2))" />
+        <Bar dataKey="Agent3" fill="hsl(var(--chart-3))" />
       </BarChart>
     </ResponsiveContainer>
   )

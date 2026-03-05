@@ -31,10 +31,10 @@ The platform is a production-ready web application for the **end-to-end governan
 
 ## 2. Phased Delivery
 
-### Phase 0 — Foundation (must complete before any other phase)
-| Work Item | Plan File |
-|---|---|
-| Design system — navy blue tokens, typography, component variants | [01-design-system.md](./01-design-system.md) |
+### Phase 0 — Foundation ✅ COMPLETED
+| Work Item | Plan File | Status |
+|---|---|---|
+| Design system — navy blue tokens, typography, component variants | [01-design-system.md](./01-design-system.md) | ✅ Done |
 
 ### Phase 1 — Core Modules (can run in parallel after Phase 0)
 | Work Item | Plan File |

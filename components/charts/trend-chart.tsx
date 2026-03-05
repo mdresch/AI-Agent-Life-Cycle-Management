@@ -25,14 +25,14 @@ export function TrendChart({ data }: TrendChartProps) {
           formatter={(value: number) => [`${value}`, "Interest"]}
           contentStyle={{
             borderRadius: "8px",
-            border: "1px solid #e2e8f0",
+            border: "1px solid hsl(210 40% 88%)",
             boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
           }}
         />
         <Line
           type="monotone"
           dataKey="value"
-          stroke="#10b981"
+          stroke="hsl(var(--chart-2))"
           strokeWidth={2}
           dot={false}
           activeDot={{ r: 6, strokeWidth: 2 }}

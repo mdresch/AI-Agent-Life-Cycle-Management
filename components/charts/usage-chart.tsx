@@ -2,7 +2,13 @@
 
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts"
 
-const COLORS = ["#0ea5e9", "#10b981", "#f59e0b", "#8b5cf6", "#6b7280"]
+const COLORS = [
+  "hsl(var(--chart-1))",
+  "hsl(var(--chart-2))",
+  "hsl(var(--chart-3))",
+  "hsl(var(--chart-4))",
+  "hsl(var(--chart-5))",
+]
 
 interface UsageChartProps {
   data: Array<{
@@ -21,7 +27,7 @@ export function UsageChart({ data }: UsageChartProps) {
           cy="50%"
           labelLine={false}
           outerRadius={80}
-          fill="#8884d8"
+          fill="hsl(var(--chart-1))"
           dataKey="value"
           label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
         >
@@ -33,7 +39,7 @@ export function UsageChart({ data }: UsageChartProps) {
           formatter={(value: number) => [`${value}%`, "Usage"]}
           contentStyle={{
             borderRadius: "8px",
-            border: "1px solid #e2e8f0",
+            border: "1px solid hsl(210 40% 88%)",
             boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
           }}
         />

@@ -44,11 +44,11 @@ export function ResponseTimeChart() {
           formatter={(value: number) => [`${value}s`, "Response Time"]}
           contentStyle={{
             borderRadius: "8px",
-            border: "1px solid #e2e8f0",
+            border: "1px solid hsl(210 40% 88%)",
             boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
           }}
         />
-        <Bar dataKey="time" fill="#0ea5e9" />
+        <Bar dataKey="time" fill="hsl(var(--chart-2))" />
       </BarChart>
     </ResponsiveContainer>
   )

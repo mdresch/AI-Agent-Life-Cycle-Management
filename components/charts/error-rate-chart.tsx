@@ -54,14 +54,14 @@ export function ErrorRateChart() {
           formatter={(value: number) => [`${value}%`, ""]}
           contentStyle={{
             borderRadius: "8px",
-            border: "1px solid #e2e8f0",
+            border: "1px solid hsl(210 40% 88%)",
             boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
           }}
         />
         <Legend />
-        <Bar dataKey="critical" name="Critical Errors" fill="#ef4444" />
-        <Bar dataKey="major" name="Major Errors" fill="#f97316" />
-        <Bar dataKey="minor" name="Minor Errors" fill="#f59e0b" />
+        <Bar dataKey="critical" name="Critical Errors" fill="hsl(var(--destructive))" />
+        <Bar dataKey="major" name="Major Errors" fill="hsl(var(--chart-4))" />
+        <Bar dataKey="minor" name="Minor Errors" fill="hsl(var(--chart-3))" />
       </BarChart>
     </ResponsiveContainer>
   )
