@@ -348,8 +348,9 @@ export function withAuth(
 
 ### Task API-T05 — Input Sanitisation (`lib/api/sanitize.ts`)
 - Wrap all user-supplied string inputs through a sanitiser function before writing to DB.
-- Use `DOMPurify` (server-safe) or strip HTML tags with a simple regex.
-- All `String` Prisma fields must pass through this utility.
+- Use a server-safe HTML sanitiser such as `isomorphic-dompurify` configured for Node/SSR. Do **not** attempt to strip HTML with a custom regex.
+- Default policy: treat all text fields as plain text (no HTML allowed). Escape or strip all HTML/JS using the sanitiser's configuration, and explicitly configure any limited-HTML allowlists (tags/attributes) where required.
+- All `String` Prisma fields receiving user input must pass through this utility before persistence or further processing.
 
 ### Task API-T06 — Agents API Routes
 - Implement all routes from §4.1.
