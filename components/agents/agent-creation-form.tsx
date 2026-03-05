@@ -35,7 +35,7 @@ const agentFormSchema = z.object({
   maxTokens: z.coerce.number().min(100).max(4000),
   temperature: z.coerce.number().min(0).max(1),
   tools: z.array(z.string()).optional(),
-  autoActivate: z.boolean().default(true),
+  autoActivate: z.boolean(),
 })
 
 type AgentFormValues = z.infer<typeof agentFormSchema>
