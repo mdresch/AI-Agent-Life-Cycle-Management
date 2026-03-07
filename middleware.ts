@@ -20,7 +20,8 @@ export function middleware(request: NextRequest) {
   const session = request.cookies.get("ai-platform-session")
   if (!session) {
     const loginUrl = new URL("/login", request.url)
-    loginUrl.searchParams.set("callbackUrl", pathname)
+    const callbackPath = pathname + request.nextUrl.search
+    loginUrl.searchParams.set("callbackUrl", callbackPath)
     return NextResponse.redirect(loginUrl)
   }
 

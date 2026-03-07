@@ -12,10 +12,10 @@ function notify() {
 }
 
 export function useAgents(query?: string, typeFilter?: string) {
-  const [, forceUpdate] = useState(0)
+  const [version, setVersion] = useState(0)
 
   useEffect(() => {
-    const rerender = () => forceUpdate((n) => n + 1)
+    const rerender = () => setVersion((n) => n + 1)
     listeners.push(rerender)
     return () => {
       listeners = listeners.filter((fn) => fn !== rerender)
@@ -34,7 +34,7 @@ export function useAgents(query?: string, typeFilter?: string) {
 
       return matchesQuery && matchesType
     })
-  }, [query, typeFilter])
+  }, [query, typeFilter, version])
 
   return { agents, isLoading: false }
 }
@@ -78,16 +78,19 @@ export function useUpdateAgent() {
 
   const updateAgent = useCallback(async (id: string, patch: Partial<Agent>): Promise<Agent> => {
     setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 300))
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 300))
 
-    const index = agentStore.findIndex((a) => a.id === id)
-    if (index === -1) throw new Error("Agent not found")
+      const index = agentStore.findIndex((a) => a.id === id)
+      if (index === -1) throw new Error("Agent not found")
 
-    const updated = { ...agentStore[index], ...patch, updatedAt: new Date().toISOString() }
-    agentStore = [...agentStore.slice(0, index), updated, ...agentStore.slice(index + 1)]
-    notify()
-    setIsLoading(false)
-    return updated
+      const updated = { ...agentStore[index], ...patch, updatedAt: new Date().toISOString() }
+      agentStore = [...agentStore.slice(0, index), updated, ...agentStore.slice(index + 1)]
+      notify()
+      return updated
+    } finally {
+      setIsLoading(false)
+    }
   }, [])
 
   return { updateAgent, isLoading }
@@ -113,24 +116,27 @@ export function useDuplicateAgent() {
 
   const duplicateAgent = useCallback(async (id: string): Promise<Agent> => {
     setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 300))
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 300))
 
-    const source = agentStore.find((a) => a.id === id)
-    if (!source) throw new Error("Agent not found")
+      const source = agentStore.find((a) => a.id === id)
+      if (!source) throw new Error("Agent not found")
 
-    const copy: Agent = {
-      ...source,
-      id: `agent-${Date.now()}`,
-      name: `${source.name} (Copy)`,
-      status: "inactive" as AgentStatus,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      const copy: Agent = {
+        ...source,
+        id: `agent-${Date.now()}`,
+        name: `${source.name} (Copy)`,
+        status: "inactive" as AgentStatus,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+
+      agentStore = [copy, ...agentStore]
+      notify()
+      return copy
+    } finally {
+      setIsLoading(false)
     }
-
-    agentStore = [copy, ...agentStore]
-    notify()
-    setIsLoading(false)
-    return copy
   }, [])
 
   return { duplicateAgent, isLoading }

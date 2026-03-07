@@ -32,11 +32,25 @@ type LoginValues = z.infer<typeof loginSchema>
 const DEMO_EMAIL = "demo@example.com"
 const DEMO_PASSWORD = "demo1234"
 
+function normalizeCallbackUrl(url: string | null): string {
+  if (!url) return "/"
+  // Reject values with an explicit scheme (e.g. "http:", "https:", "javascript:")
+  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(url)) return "/"
+  // Reject protocol-relative URLs ("//example.com") – must come before the
+  // startsWith("/") check below so "//" is caught here first.
+  if (url.startsWith("//")) return "/"
+  // Only allow paths that start with a single "/" (internal navigation).
+  // Because the "//…" case is already handled above, a URL passing this check
+  // is guaranteed to be a same-origin path.
+  if (!url.startsWith("/")) return "/"
+  return url
+}
+
 // Inner component that uses useSearchParams – must be wrapped in <Suspense>
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/"
+  const callbackUrl = normalizeCallbackUrl(searchParams.get("callbackUrl"))
 
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -125,7 +139,8 @@ function LoginForm() {
                         type="button"
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                         onClick={() => setShowPassword((v) => !v)}
-                        tabIndex={-1}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        aria-pressed={showPassword}
                       >
                         {showPassword ? (
                           <EyeOff className="h-4 w-4" />
