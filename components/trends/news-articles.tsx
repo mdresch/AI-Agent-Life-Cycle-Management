@@ -1,150 +1,96 @@
 "use client"
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Bookmark, BookmarkCheck, Share2 } from "lucide-react"
+import { toast } from "sonner"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { BookmarkIcon, ExternalLink, Search, ThumbsUp } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { newsArticles, type TrendCategory } from "@/lib/mock-data/trends"
+import { formatDate } from "@/lib/utils"
 
-export function NewsArticles() {
-  const [searchQuery, setSearchQuery] = useState("")
+interface NewsArticlesProps {
+  category: TrendCategory
+  bookmarkedIds: Set<string>
+  onToggleBookmark: (id: string) => void
+}
 
-  const articles = [
-    {
-      id: 1,
-      title: "OpenAI Introduces GPT-5 with Enhanced Agent Capabilities",
-      source: "TechCrunch",
-      date: "2 days ago",
-      summary:
-        "OpenAI has unveiled GPT-5, featuring significant improvements in reasoning, planning, and agent-like behaviors. The new model demonstrates enhanced capabilities in executing complex tasks autonomously.",
-      url: "#",
-      categories: ["LLM", "Agents", "OpenAI"],
-      image: "/placeholder.svg?height=100&width=200",
-    },
-    {
-      id: 2,
-      title: "Google DeepMind's New Framework for Multi-Agent Collaboration",
-      source: "VentureBeat",
-      date: "3 days ago",
-      summary:
-        "Google DeepMind researchers have published a new framework that enables multiple AI agents to collaborate effectively on complex tasks, showing promising results in problem-solving scenarios.",
-      url: "#",
-      categories: ["Agents", "Collaboration", "Google"],
-      image: "/placeholder.svg?height=100&width=200",
-    },
-    {
-      id: 3,
-      title: "AI Agents Revolutionizing Customer Service Operations",
-      source: "Forbes",
-      date: "5 days ago",
-      summary:
-        "Major enterprises are reporting significant improvements in customer satisfaction and operational efficiency after deploying specialized AI agents for customer service tasks.",
-      url: "#",
-      categories: ["Agents", "Business", "Customer Service"],
-      image: "/placeholder.svg?height=100&width=200",
-    },
-    {
-      id: 4,
-      title: "New Research Shows AI Agents Can Learn from Human Feedback",
-      source: "MIT Technology Review",
-      date: "1 week ago",
-      summary:
-        "A study from MIT researchers demonstrates how AI agents can effectively learn from human feedback, improving their performance and alignment with human preferences over time.",
-      url: "#",
-      categories: ["Agents", "Learning", "Research"],
-      image: "/placeholder.svg?height=100&width=200",
-    },
-    {
-      id: 5,
-      title: "Anthropic Releases Claude 3.5 with Advanced Tool Use",
-      source: "The Verge",
-      date: "1 week ago",
-      summary:
-        "Anthropic has released Claude 3.5, featuring significant improvements in the model's ability to use external tools and APIs, enabling more complex agent-like behaviors.",
-      url: "#",
-      categories: ["LLM", "Tools", "Anthropic"],
-      image: "/placeholder.svg?height=100&width=200",
-    },
-  ]
+export function NewsArticles({ category, bookmarkedIds, onToggleBookmark }: NewsArticlesProps) {
+  const filtered =
+    category === "all" ? newsArticles : newsArticles.filter((a) => a.category === category)
 
-  const filteredArticles = articles.filter(
-    (article) =>
-      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.categories.some((category) => category.toLowerCase().includes(searchQuery.toLowerCase())),
-  )
+  const handleShare = async (article: (typeof newsArticles)[number]) => {
+    try {
+      await navigator.clipboard.writeText(article.title)
+      toast.success("Link copied!")
+    } catch {
+      toast.error("Failed to copy link.")
+    }
+  }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center space-x-2">
-        <Search className="h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search articles..."
-          className="max-w-sm"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
+      {filtered.map((article) => {
+        const isBookmarked = bookmarkedIds.has(article.id)
+        const visibleTags = article.tags.slice(0, 3)
+        const extraTags = article.tags.length - visibleTags.length
 
-      <div className="space-y-4">
-        {filteredArticles.map((article) => (
+        const formattedDate = formatDate(article.publishedAt)
+
+        return (
           <Card key={article.id}>
-            <div className="md:flex">
-              <div className="md:w-1/4 p-4 flex items-center justify-center">
-                <img
-                  src={article.image || "/placeholder.svg"}
-                  alt={article.title}
-                  className="rounded-md object-cover h-[100px] w-full"
-                />
-              </div>
-              <div className="md:w-3/4">
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="text-xl">{article.title}</CardTitle>
-                      <CardDescription className="flex items-center mt-1">
-                        <span>{article.source}</span>
-                        <span className="mx-2">•</span>
-                        <span>{article.date}</span>
-                      </CardDescription>
-                    </div>
-                    <Button variant="ghost" size="icon">
-                      <BookmarkIcon className="h-4 w-4" />
-                      <span className="sr-only">Bookmark</span>
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">{article.summary}</p>
-                  <div className="flex flex-wrap gap-2 mt-4">
-                    {article.categories.map((category) => (
-                      <Badge key={category} variant="outline">
-                        {category}
+            <CardContent className="pt-5">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 space-y-2">
+                  <p className="font-semibold leading-snug">{article.title}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {article.source} · {formattedDate}
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {visibleTags.map((tag) => (
+                      <Badge key={tag} variant="secondary" className="text-xs">
+                        {tag}
                       </Badge>
                     ))}
+                    {extraTags > 0 && (
+                      <Badge variant="secondary" className="text-xs">
+                        +{extraTags} more
+                      </Badge>
+                    )}
                   </div>
-                </CardContent>
-                <CardFooter className="flex justify-between">
-                  <Button variant="ghost" size="sm">
-                    <ThumbsUp className="mr-2 h-4 w-4" />
-                    Relevant
+                </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onToggleBookmark(article.id)}
+                    aria-label={isBookmarked ? "Remove bookmark" : "Bookmark"}
+                  >
+                    {isBookmarked ? (
+                      <BookmarkCheck className="h-4 w-4 text-primary" />
+                    ) : (
+                      <Bookmark className="h-4 w-4" />
+                    )}
                   </Button>
-                  <Button variant="outline" size="sm">
-                    <ExternalLink className="mr-2 h-4 w-4" />
-                    Read Full Article
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleShare(article)}
+                    aria-label="Share"
+                  >
+                    <Share2 className="h-4 w-4" />
                   </Button>
-                </CardFooter>
+                </div>
               </div>
-            </div>
+            </CardContent>
           </Card>
-        ))}
-      </div>
+        )
+      })}
 
-      <div className="flex justify-center mt-6">
-        <Button variant="outline">Load More Articles</Button>
-      </div>
+      {filtered.length === 0 && (
+        <p className="text-center text-muted-foreground py-10">
+          No articles found for this category.
+        </p>
+      )}
     </div>
   )
 }
-
