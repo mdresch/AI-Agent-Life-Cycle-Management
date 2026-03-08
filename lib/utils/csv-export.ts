@@ -2,7 +2,8 @@
 export function exportToCsv(data: Record<string, any>[], filename: string): void {
   if (data.length === 0) return
 
-  const headers = Object.keys(data[0])
+  // Collect all unique keys across all rows to handle objects with differing shapes
+  const headers = Array.from(new Set(data.flatMap((row) => Object.keys(row))))
 
   const csvContent = [
     headers.join(","),

@@ -8,15 +8,21 @@ interface PerformanceKpisProps {
   kpis: PerformanceKpis
 }
 
+/**
+ * Inverts a trend value for response time: a lower response time (trend "down") is good
+ * and should display as green "up" in the KpiCard, while higher (trend "up") is bad and
+ * should display as red "down".
+ */
+function invertResponseTimeTrend(
+  trend: "up" | "down" | "neutral",
+): "up" | "down" | "neutral" {
+  if (trend === "down") return "up"
+  if (trend === "up") return "down"
+  return "neutral"
+}
+
 export function PerformanceKpis({ kpis }: PerformanceKpisProps) {
-  // Response time trend is inverted: a "down" trend (lower ms) is good → show as green "up".
-  // A "up" trend (higher ms) is bad → show as red "down".
-  const invertedResponseTimeTrend =
-    kpis.responseTimeTrend === "down"
-      ? "up"
-      : kpis.responseTimeTrend === "up"
-        ? "down"
-        : "neutral"
+  const invertedResponseTimeTrend = invertResponseTimeTrend(kpis.responseTimeTrend)
 
   return (
     <div className="grid grid-cols-2 gap-4 md:grid-cols-4">

@@ -16,8 +16,17 @@ import { TRAINING_SCENARIOS } from "@/lib/mock-data/studio"
 
 const scenarioLabels = Object.fromEntries(TRAINING_SCENARIOS.map((s) => [s.id, s.label]))
 
+/** Extracts a short label from a scenario string, splitting on common separators */
+function getShortScenarioLabel(scenario: string, scenarioLabels: Record<string, string>): string {
+  const full = scenarioLabels[scenario]
+  if (!full) return scenario
+  // Support both em dash (—) and hyphen (-) as separators
+  const separatorIndex = full.search(/\s[—\-]\s/)
+  return separatorIndex >= 0 ? full.slice(separatorIndex + 3) : full
+}
+
 const chartData = trainingSessions.slice(-8).map((session) => ({
-  label: scenarioLabels[session.scenario]?.split(" — ")[1] ?? session.scenario,
+  label: getShortScenarioLabel(session.scenario, scenarioLabels),
   score: session.score,
   date: new Date(session.completedAt).toLocaleDateString("en-GB", { month: "short", day: "numeric" }),
 }))

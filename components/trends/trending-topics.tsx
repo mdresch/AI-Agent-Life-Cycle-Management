@@ -38,7 +38,9 @@ export function TrendingTopics({ category }: TrendingTopicsProps) {
                 <>
                   <TrendingDown className="h-4 w-4 text-destructive" />
                   <span className="text-destructive font-medium">
-                    -{Math.abs(topic.weeklyChangePercent)}% this week
+                    {topic.weeklyChangePercent < 0
+                      ? `${topic.weeklyChangePercent}% this week`
+                      : `-${topic.weeklyChangePercent}% this week`}
                   </span>
                 </>
               )}

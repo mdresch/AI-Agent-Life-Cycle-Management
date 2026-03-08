@@ -14,6 +14,9 @@ import { ErrorsTable } from "@/components/analytics/errors-table"
 import { ExportButton } from "@/components/analytics/export-button"
 import { getMockAnalyticsData, type TimeWindow } from "@/lib/mock-data/analytics"
 
+/** Delay (ms) for the loading skeleton before chart data updates */
+const LOADING_DELAY_MS = 300
+
 export function AnalyticsDashboard() {
   const [timeWindow, setTimeWindow] = useState<TimeWindow>("7d")
   const [isLoading, setIsLoading] = useState(false)
@@ -24,7 +27,7 @@ export function AnalyticsDashboard() {
     const timer = setTimeout(() => {
       setAnalyticsData(getMockAnalyticsData(timeWindow))
       setIsLoading(false)
-    }, 300)
+    }, LOADING_DELAY_MS)
     return () => clearTimeout(timer)
   }, [timeWindow])
 
