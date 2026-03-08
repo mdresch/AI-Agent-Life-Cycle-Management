@@ -1,116 +1,131 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useEffect, useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { PerformanceChart } from "@/components/charts/performance-chart"
+import { TimeWindowSelector } from "@/components/analytics/time-window-selector"
+import { PerformanceKpis } from "@/components/analytics/performance-kpis"
+import { ResponseTimeChart } from "@/components/analytics/response-time-chart"
+import { PerformanceTrendsChart } from "@/components/analytics/performance-trends-chart"
 import { UsageMetrics } from "@/components/analytics/usage-metrics"
-import { ErrorRateChart } from "@/components/charts/error-rate-chart"
-import { ResponseTimeChart } from "@/components/charts/response-time-chart"
+import { ErrorRateChart } from "@/components/analytics/error-rate-chart"
+import { ErrorsTable } from "@/components/analytics/errors-table"
+import { ExportButton } from "@/components/analytics/export-button"
+import { getMockAnalyticsData, type TimeWindow } from "@/lib/mock-data/analytics"
+
+/** Delay (ms) for the loading skeleton before chart data updates */
+const LOADING_DELAY_MS = 300
 
 export function AnalyticsDashboard() {
+  const [timeWindow, setTimeWindow] = useState<TimeWindow>("7d")
+  const [isLoading, setIsLoading] = useState(false)
+  const [analyticsData, setAnalyticsData] = useState(() => getMockAnalyticsData("7d"))
+
+  useEffect(() => {
+    setIsLoading(true)
+    const timer = setTimeout(() => {
+      setAnalyticsData(getMockAnalyticsData(timeWindow))
+      setIsLoading(false)
+    }, LOADING_DELAY_MS)
+    return () => clearTimeout(timer)
+  }, [timeWindow])
+
   return (
     <div className="space-y-4">
-      <div className="flex justify-between">
-        <Tabs defaultValue="performance" className="w-full">
-          <div className="flex items-center justify-between">
-            <TabsList>
-              <TabsTrigger value="performance">Performance</TabsTrigger>
-              <TabsTrigger value="usage">Usage</TabsTrigger>
-              <TabsTrigger value="errors">Errors</TabsTrigger>
-            </TabsList>
-            <Select defaultValue="7d">
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select time period" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="24h">Last 24 hours</SelectItem>
-                <SelectItem value="7d">Last 7 days</SelectItem>
-                <SelectItem value="30d">Last 30 days</SelectItem>
-                <SelectItem value="90d">Last 90 days</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+      <Tabs defaultValue="performance" className="w-full">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <TabsList>
+            <TabsTrigger value="performance">Performance</TabsTrigger>
+            <TabsTrigger value="usage">Usage</TabsTrigger>
+            <TabsTrigger value="errors">Errors</TabsTrigger>
+          </TabsList>
+          <TimeWindowSelector value={timeWindow} onChange={setTimeWindow} />
+        </div>
 
-          <TabsContent value="performance" className="space-y-4 pt-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Avg. Response Time</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">1.2s</div>
-                  <p className="text-xs text-muted-foreground">-0.3s from last week</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">94.2%</div>
-                  <p className="text-xs text-muted-foreground">+2.1% from last month</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Throughput</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">245/min</div>
-                  <p className="text-xs text-muted-foreground">+15% from last week</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium">Availability</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">99.98%</div>
-                  <p className="text-xs text-muted-foreground">+0.05% from last month</p>
-                </CardContent>
-              </Card>
-            </div>
+        {/* Performance Tab */}
+        <TabsContent value="performance" className="space-y-4 pt-4">
+          {isLoading ? (
+            <Skeleton className="h-[400px] w-full" />
+          ) : (
+            <>
+              <PerformanceKpis kpis={analyticsData.performanceKpis} />
+              <div className="grid gap-4 md:grid-cols-2">
+                <ResponseTimeChart data={analyticsData.responseTimeSeries} />
+                <PerformanceTrendsChart data={analyticsData.performanceTrend} />
+              </div>
+              <div className="flex justify-end">
+                <ExportButton
+                  data={analyticsData.responseTimeSeries}
+                  filename="performance"
+                />
+              </div>
+            </>
+          )}
+        </TabsContent>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <Card className="col-span-1">
-                <CardHeader>
-                  <CardTitle>Response Time</CardTitle>
-                  <CardDescription>Average response time by agent</CardDescription>
-                </CardHeader>
-                <CardContent className="h-[300px]">
-                  <ResponseTimeChart />
-                </CardContent>
-              </Card>
-              <Card className="col-span-1">
-                <CardHeader>
-                  <CardTitle>Performance Trends</CardTitle>
-                  <CardDescription>Success rate over time</CardDescription>
-                </CardHeader>
-                <CardContent className="h-[300px]">
-                  <PerformanceChart />
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
+        {/* Usage Tab */}
+        <TabsContent value="usage" className="space-y-4 pt-4">
+          {isLoading ? (
+            <Skeleton className="h-[400px] w-full" />
+          ) : (
+            <>
+              <UsageMetrics kpis={analyticsData.usageKpis} series={analyticsData.usageSeries} />
+              <div className="flex justify-end">
+                <ExportButton
+                  data={analyticsData.usageSeries}
+                  filename="usage"
+                />
+              </div>
+            </>
+          )}
+        </TabsContent>
 
-          <TabsContent value="usage" className="pt-4">
-            <UsageMetrics />
-          </TabsContent>
-
-          <TabsContent value="errors" className="space-y-4 pt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Error Rate</CardTitle>
-                <CardDescription>Error percentage by agent type</CardDescription>
-              </CardHeader>
-              <CardContent className="h-[400px]">
-                <ErrorRateChart />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
+        {/* Errors Tab */}
+        <TabsContent value="errors" className="space-y-4 pt-4">
+          {isLoading ? (
+            <Skeleton className="h-[400px] w-full" />
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-4">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      Overall Error Rate
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold text-foreground">
+                      {analyticsData.errorKpis.overallErrorRate}
+                      <span className="text-lg font-normal text-muted-foreground ml-1">%</span>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      Agents with Errors
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-3xl font-bold text-foreground">
+                      {analyticsData.errorKpis.agentsWithErrors}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              <ErrorRateChart data={analyticsData.errorRates} />
+              <ErrorsTable events={analyticsData.errorEvents} />
+              <div className="flex justify-end">
+                <ExportButton
+                  data={analyticsData.errorEvents}
+                  filename="errors"
+                />
+              </div>
+            </>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

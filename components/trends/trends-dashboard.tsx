@@ -1,129 +1,104 @@
 "use client"
 
 import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Loader2, RefreshCw } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { BreakthroughAlertCard } from "@/components/trends/breakthrough-alert-card"
 import { TrendingTopics } from "@/components/trends/trending-topics"
 import { NewsArticles } from "@/components/trends/news-articles"
 import { ResearchHighlights } from "@/components/trends/research-highlights"
 import { TechnologyRadar } from "@/components/trends/technology-radar"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { BookmarkIcon, Share2, Filter, RefreshCw, Zap } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  breakthroughAlert,
+  TREND_CATEGORY_LABELS,
+  type TrendCategory,
+} from "@/lib/mock-data/trends"
+
+function getMinutesAgo(date: Date): string {
+  const diff = Math.floor((Date.now() - date.getTime()) / 60_000)
+  if (diff < 1) return "just now"
+  if (diff === 1) return "1 min ago"
+  return `${diff} min ago`
+}
 
 export function TrendsDashboard() {
+  const [selectedCategory, setSelectedCategory] = useState<TrendCategory>("all")
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date())
+  const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set())
+
+  const toggleBookmark = (id: string) => {
+    setBookmarkedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+      return next
+    })
+  }
 
   const handleRefresh = () => {
     setIsRefreshing(true)
-    // Simulate refresh
     setTimeout(() => {
       setIsRefreshing(false)
+      setLastUpdated(new Date())
     }, 1500)
   }
 
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row justify-between gap-4">
+        <Select
+          value={selectedCategory}
+          onValueChange={(v) => setSelectedCategory(v as TrendCategory)}
+        >
+          <SelectTrigger className="w-[220px]">
+            <SelectValue placeholder="Filter by category" />
+          </SelectTrigger>
+          <SelectContent>
+            {(Object.entries(TREND_CATEGORY_LABELS) as [TrendCategory, string][]).map(
+              ([value, label]) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              )
+            )}
+          </SelectContent>
+        </Select>
+
         <div className="flex items-center gap-2">
-          <Select defaultValue="all">
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter by category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              <SelectItem value="llm">Large Language Models</SelectItem>
-              <SelectItem value="vision">Computer Vision</SelectItem>
-              <SelectItem value="multimodal">Multimodal AI</SelectItem>
-              <SelectItem value="agents">AI Agents</SelectItem>
-              <SelectItem value="tools">AI Tools & Frameworks</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button variant="outline" size="icon">
-            <Filter className="h-4 w-4" />
-            <span className="sr-only">Filter</span>
-          </Button>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleRefresh} disabled={isRefreshing}>
-            <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+          <Button
+            variant="outline"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+          >
+            {isRefreshing ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="mr-2 h-4 w-4" />
+            )}
             {isRefreshing ? "Refreshing..." : "Refresh"}
           </Button>
-          <Badge variant="outline" className="ml-2">
-            Last updated: 10 minutes ago
-          </Badge>
+          <Badge variant="outline">Last updated: {getMinutesAgo(lastUpdated)}</Badge>
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <Zap className="mr-2 h-5 w-5 text-yellow-500" />
-            Breakthrough Alert
-          </CardTitle>
-          <CardDescription>Recent significant advancements in AI technology</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="rounded-lg border bg-card p-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold">GPT-5 Demonstrates Advanced Reasoning Capabilities</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    OpenAI's latest model shows unprecedented performance in complex problem-solving and multi-step
-                    reasoning tasks.
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="icon">
-                    <BookmarkIcon className="h-4 w-4" />
-                    <span className="sr-only">Bookmark</span>
-                  </Button>
-                  <Button variant="ghost" size="icon">
-                    <Share2 className="h-4 w-4" />
-                    <span className="sr-only">Share</span>
-                  </Button>
-                </div>
-              </div>
-              <div className="mt-4 flex items-center gap-2">
-                <Badge>LLM</Badge>
-                <Badge variant="outline">Reasoning</Badge>
-                <Badge variant="secondary">OpenAI</Badge>
-                <span className="text-xs text-muted-foreground ml-auto">2 days ago</span>
-              </div>
-            </div>
-
-            <div className="rounded-lg border bg-card p-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold">New Framework Enables Autonomous Agent Collaboration</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Researchers have developed a framework allowing multiple AI agents to collaborate on complex tasks
-                    with minimal human supervision.
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="icon">
-                    <BookmarkIcon className="h-4 w-4" />
-                    <span className="sr-only">Bookmark</span>
-                  </Button>
-                  <Button variant="ghost" size="icon">
-                    <Share2 className="h-4 w-4" />
-                    <span className="sr-only">Share</span>
-                  </Button>
-                </div>
-              </div>
-              <div className="mt-4 flex items-center gap-2">
-                <Badge>Agents</Badge>
-                <Badge variant="outline">Collaboration</Badge>
-                <Badge variant="secondary">Research</Badge>
-                <span className="text-xs text-muted-foreground ml-auto">5 days ago</span>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <BreakthroughAlertCard
+        alert={breakthroughAlert}
+        isBookmarked={bookmarkedIds.has(breakthroughAlert.id)}
+        onToggleBookmark={() => toggleBookmark(breakthroughAlert.id)}
+      />
 
       <Tabs defaultValue="trending">
         <TabsList className="grid w-full grid-cols-4">
@@ -134,22 +109,25 @@ export function TrendsDashboard() {
         </TabsList>
 
         <TabsContent value="trending" className="pt-4">
-          <TrendingTopics />
+          <TrendingTopics category={selectedCategory} />
         </TabsContent>
 
         <TabsContent value="news" className="pt-4">
-          <NewsArticles />
+          <NewsArticles
+            category={selectedCategory}
+            bookmarkedIds={bookmarkedIds}
+            onToggleBookmark={toggleBookmark}
+          />
         </TabsContent>
 
         <TabsContent value="research" className="pt-4">
-          <ResearchHighlights />
+          <ResearchHighlights category={selectedCategory} />
         </TabsContent>
 
         <TabsContent value="radar" className="pt-4">
-          <TechnologyRadar />
+          <TechnologyRadar category={selectedCategory} />
         </TabsContent>
       </Tabs>
     </div>
   )
 }
-
