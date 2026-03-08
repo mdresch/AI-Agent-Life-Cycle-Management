@@ -4,101 +4,97 @@ import { useState } from "react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Archive, AlertTriangle, ArrowRight, FileDown } from "lucide-react"
+import { Archive, AlertTriangle, CheckCircle } from "lucide-react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { toast } from "sonner"
+
+const retirementCandidates = [
+  {
+    id: "legacy-support",
+    name: "Legacy Support Agent",
+    type: "Support",
+    stage: "maintenance",
+    daysInStage: 45,
+  },
+  {
+    id: "old-email",
+    name: "Email Assistant v1",
+    type: "Communication",
+    stage: "maintenance",
+    daysInStage: 30,
+  },
+  {
+    id: "basic-scheduler",
+    name: "Basic Scheduling Agent",
+    type: "Productivity",
+    stage: "development",
+    daysInStage: 60,
+  },
+]
+
+type Step = 1 | 2 | 3 | "complete"
 
 export function AgentRetirement() {
-  const [selectedAgent, setSelectedAgent] = useState("")
+  const [selectedAgent, setSelectedAgent] = useState<(typeof retirementCandidates)[0] | null>(null)
+  const [step, setStep] = useState<Step>(1)
+  const [endDate, setEndDate] = useState("")
 
-  const agents = [
-    {
-      id: "legacy-support",
-      name: "Legacy Support Agent",
-      type: "Support",
-      lastActive: "45 days ago",
-      status: "inactive",
-      usageDecline: "85%",
-      replacedBy: "Customer Support Agent v2",
-    },
-    {
-      id: "old-email",
-      name: "Email Assistant v1",
-      type: "Communication",
-      lastActive: "30 days ago",
-      status: "inactive",
-      usageDecline: "92%",
-      replacedBy: "Email Assistant v2",
-    },
-    {
-      id: "basic-scheduler",
-      name: "Basic Scheduling Agent",
-      type: "Productivity",
-      lastActive: "60 days ago",
-      status: "inactive",
-      usageDecline: "78%",
-      replacedBy: "Scheduling Assistant Pro",
-    },
-  ]
+  function startRetirement(agent: (typeof retirementCandidates)[0]) {
+    setSelectedAgent(agent)
+    setStep(1)
+  }
 
-  const archivedAgents = [
-    {
-      id: "old-content",
-      name: "Content Generator v1",
-      type: "Creative",
-      archivedDate: "Jan 15, 2025",
-      archivedBy: "John Doe",
-      reason: "Replaced by improved version with better performance",
-    },
-    {
-      id: "legacy-research",
-      name: "Legacy Research Agent",
-      type: "Research",
-      archivedDate: "Dec 10, 2024",
-      archivedBy: "Jane Smith",
-      reason: "Outdated methodology and poor performance",
-    },
-  ]
+  function handleComplete() {
+    setStep("complete")
+    toast.success(`Agent "${selectedAgent?.name}" has been retired and archived.`)
+  }
+
+  function reset() {
+    setSelectedAgent(null)
+    setStep(1)
+    setEndDate("")
+  }
 
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2">
+        {/* Candidates list */}
         <Card>
           <CardHeader>
             <CardTitle>Retirement Candidates</CardTitle>
-            <CardDescription>Agents with declining usage that may be candidates for retirement</CardDescription>
+            <CardDescription>Agents eligible for retirement based on activity and stage</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Agent</TableHead>
-                  <TableHead>Last Active</TableHead>
-                  <TableHead>Usage Decline</TableHead>
-                  <TableHead>Replaced By</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>Stage</TableHead>
+                  <TableHead>Days</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {agents.map((agent) => (
+                {retirementCandidates.map((agent) => (
                   <TableRow key={agent.id}>
                     <TableCell>
-                      <div>
-                        <p className="font-medium">{agent.name}</p>
-                        <p className="text-xs text-muted-foreground">{agent.type}</p>
-                      </div>
+                      <p className="font-medium text-sm">{agent.name}</p>
+                      <p className="text-xs text-muted-foreground">{agent.type}</p>
                     </TableCell>
-                    <TableCell>{agent.lastActive}</TableCell>
                     <TableCell>
-                      <Badge variant="destructive">{agent.usageDecline}</Badge>
+                      <Badge variant="outline" className="capitalize">
+                        {agent.stage}
+                      </Badge>
                     </TableCell>
-                    <TableCell>{agent.replacedBy}</TableCell>
+                    <TableCell className="text-sm">{agent.daysInStage}d</TableCell>
                     <TableCell className="text-right">
-                      <Button variant="outline" size="sm" onClick={() => setSelectedAgent(agent.id)}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => startRetirement(agent)}
+                      >
                         <Archive className="mr-2 h-4 w-4" />
                         Retire
                       </Button>
@@ -110,168 +106,157 @@ export function AgentRetirement() {
           </CardContent>
         </Card>
 
+        {/* Retirement workflow */}
         <Card>
           <CardHeader>
-            <CardTitle>Retirement Process</CardTitle>
-            <CardDescription>Configure the retirement process for the selected agent</CardDescription>
+            <CardTitle>Retirement Workflow</CardTitle>
+            <CardDescription>
+              {selectedAgent
+                ? `Retiring: ${selectedAgent.name}`
+                : "Select an agent to begin the retirement process"}
+            </CardDescription>
           </CardHeader>
           <CardContent>
-            {selectedAgent ? (
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-sm font-medium mb-2">Selected Agent</h3>
-                  <div className="flex items-center space-x-2">
-                    <Badge variant="outline">{agents.find((a) => a.id === selectedAgent)?.name}</Badge>
-                    <Badge variant="secondary">{agents.find((a) => a.id === selectedAgent)?.type}</Badge>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="retirement-type">Retirement Type</Label>
-                  <Select defaultValue="archive">
-                    <SelectTrigger id="retirement-type">
-                      <SelectValue placeholder="Select retirement type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="archive">Archive (Preserve Data)</SelectItem>
-                      <SelectItem value="redirect">Redirect to Replacement</SelectItem>
-                      <SelectItem value="delete">Delete Permanently</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="retirement-reason">Retirement Reason</Label>
-                  <Textarea
-                    id="retirement-reason"
-                    placeholder="Explain why this agent is being retired..."
-                    className="min-h-[80px]"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="replacement-agent">Replacement Agent</Label>
-                  <Select
-                    defaultValue={agents
-                      .find((a) => a.id === selectedAgent)
-                      ?.replacedBy.toLowerCase()
-                      .replace(/\s+/g, "-")}
-                  >
-                    <SelectTrigger id="replacement-agent">
-                      <SelectValue placeholder="Select replacement agent" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="customer-support-agent-v2">Customer Support Agent v2</SelectItem>
-                      <SelectItem value="email-assistant-v2">Email Assistant v2</SelectItem>
-                      <SelectItem value="scheduling-assistant-pro">Scheduling Assistant Pro</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="retirement-date">Retirement Date</Label>
-                  <Input type="date" id="retirement-date" />
-                </div>
-
-                <div className="flex items-start space-x-2">
-                  <Checkbox id="notify-users" />
-                  <div className="grid gap-1.5 leading-none">
-                    <Label
-                      htmlFor="notify-users"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      Notify users
-                    </Label>
-                    <p className="text-sm text-muted-foreground">
-                      Send notification to users about this agent's retirement
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-2">
-                  <Checkbox id="export-data" />
-                  <div className="grid gap-1.5 leading-none">
-                    <Label
-                      htmlFor="export-data"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      Export data before retirement
-                    </Label>
-                    <p className="text-sm text-muted-foreground">
-                      Create a backup of all agent data and conversation history
-                    </p>
-                  </div>
-                </div>
+            {!selectedAgent ? (
+              <div className="flex flex-col items-center justify-center h-[280px] text-center">
+                <AlertTriangle className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-base font-medium">No Agent Selected</h3>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Select an agent from the list to begin retirement.
+                </p>
+              </div>
+            ) : step === "complete" ? (
+              <div className="flex flex-col items-center justify-center h-[280px] text-center">
+                <CheckCircle className="h-14 w-14 text-emerald-500 mb-4" />
+                <h3 className="text-base font-semibold">Agent Retired Successfully</h3>
+                <p className="text-sm text-muted-foreground mt-2 max-w-xs">
+                  <strong>{selectedAgent.name}</strong> has been archived. Configuration is preserved for audit purposes.
+                </p>
+                <Button variant="outline" className="mt-6" onClick={reset}>
+                  Start Another Retirement
+                </Button>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-[300px] text-center">
-                <AlertTriangle className="h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium">No Agent Selected</h3>
-                <p className="text-sm text-muted-foreground mt-2 max-w-md">
-                  Select an agent from the retirement candidates list to configure the retirement process.
-                </p>
+              <div className="space-y-6">
+                {/* Step indicators */}
+                <div className="flex items-center gap-2">
+                  {([1, 2, 3] as const).map((s) => (
+                    <div key={s} className="flex items-center gap-1">
+                      <div
+                        className={`h-6 w-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                          step >= s
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {s}
+                      </div>
+                      {s < 3 && <div className="h-px w-8 bg-muted" />}
+                    </div>
+                  ))}
+                  <span className="text-xs text-muted-foreground ml-2">
+                    Step {step} of 3
+                  </span>
+                </div>
+
+                {/* Step 1: Confirm Intent */}
+                {step === 1 && (
+                  <div className="space-y-4">
+                    <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/20">
+                      <p className="text-sm font-medium">
+                        You are about to retire{" "}
+                        <span className="text-primary">{selectedAgent.name}</span>.
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Retired agents will no longer accept new requests.
+                      </p>
+                    </div>
+                    <Badge variant="outline" className="capitalize">
+                      Current stage: {selectedAgent.stage}
+                    </Badge>
+                  </div>
+                )}
+
+                {/* Step 2: Set End Date */}
+                {step === 2 && (
+                  <div className="space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                      Set the date from which the agent will stop accepting new requests.
+                    </p>
+                    <div className="space-y-2">
+                      <Label htmlFor="end-date">End Date</Label>
+                      <Input
+                        id="end-date"
+                        type="date"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        min={new Date().toISOString().split("T")[0]}
+                      />
+                    </div>
+                    {endDate && (
+                      <p className="text-xs text-muted-foreground">
+                        The agent will stop on{" "}
+                        <strong>{new Date(endDate).toLocaleDateString()}</strong>.
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Step 3: Archive Confirm */}
+                {step === 3 && (
+                  <div className="space-y-4">
+                    <div className="rounded-lg border bg-muted/30 p-4 space-y-2">
+                      <p className="text-sm font-medium">Retirement Summary</p>
+                      <div className="text-sm space-y-1">
+                        <p>
+                          <span className="text-muted-foreground">Agent: </span>
+                          <span className="font-medium">{selectedAgent.name}</span>
+                        </p>
+                        <p>
+                          <span className="text-muted-foreground">End date: </span>
+                          <span className="font-medium">
+                            {endDate
+                              ? new Date(endDate).toLocaleDateString()
+                              : "Immediately"}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      The agent configuration will be archived and stored for audit purposes.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </CardContent>
-          <CardFooter className="flex justify-end">
-            <Button variant="outline" className="mr-2" disabled={!selectedAgent}>
-              Cancel
-            </Button>
-            <Button disabled={!selectedAgent}>
-              <Archive className="mr-2 h-4 w-4" />
-              Proceed with Retirement
-            </Button>
-          </CardFooter>
+          {selectedAgent && step !== "complete" && (
+            <CardFooter className="flex justify-between">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  if (step === 1) reset()
+                  else setStep((s) => (typeof s === "number" ? (s - 1) : 1) as Step)
+                }}
+              >
+                {step === 1 ? "Cancel" : "Back"}
+              </Button>
+              <Button
+                variant={step === 3 ? "destructive" : "default"}
+                onClick={() => {
+                  if (step === 3) handleComplete()
+                  else setStep((s) => (s === 1 ? 2 : 3) as Step)
+                }}
+                disabled={step === 2 && !endDate}
+              >
+                {step === 1 && "Confirm Retirement"}
+                {step === 2 && "Set End Date"}
+                {step === 3 && "Archive & Retire"}
+              </Button>
+            </CardFooter>
+          )}
         </Card>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Archived Agents</CardTitle>
-          <CardDescription>Previously retired agents that have been archived</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Agent</TableHead>
-                <TableHead>Archived Date</TableHead>
-                <TableHead>Archived By</TableHead>
-                <TableHead>Reason</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {archivedAgents.map((agent) => (
-                <TableRow key={agent.id}>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{agent.name}</p>
-                      <p className="text-xs text-muted-foreground">{agent.type}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>{agent.archivedDate}</TableCell>
-                  <TableCell>{agent.archivedBy}</TableCell>
-                  <TableCell className="max-w-xs truncate">{agent.reason}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="outline" size="sm">
-                        <FileDown className="mr-2 h-4 w-4" />
-                        Export
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        <ArrowRight className="mr-2 h-4 w-4" />
-                        Restore
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
     </div>
   )
 }
-

@@ -6,10 +6,12 @@ import { LifecycleOverview } from "@/components/lifecycle/lifecycle-overview"
 import { VersionHistory } from "@/components/lifecycle/version-history"
 import { AgentTemplates } from "@/components/lifecycle/agent-templates"
 import { AgentRetirement } from "@/components/lifecycle/agent-retirement"
+import { LifecycleHeader } from "@/components/lifecycle/lifecycle-header"
 
 export function LifecycleDashboard() {
   return (
     <div className="space-y-4">
+      <LifecycleHeader />
       <Card>
         <CardHeader>
           <CardTitle>Lifecycle Management</CardTitle>

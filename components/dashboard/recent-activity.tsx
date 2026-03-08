@@ -1,75 +1,102 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Bot, RefreshCw, Zap, AlertCircle, Download, Settings } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
+import type { ActivityEvent } from "@/lib/types"
+
+const activities: ActivityEvent[] = [
+  {
+    id: "1",
+    type: "agent_created",
+    message: "New agent created",
+    actor: "John Doe",
+    timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+    agentName: "HR Onboarding Agent",
+  },
+  {
+    id: "2",
+    type: "lifecycle_transition",
+    message: "Agent promoted to Production",
+    actor: "Jane Smith",
+    timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
+    agentName: "Customer Support Agent",
+  },
+  {
+    id: "3",
+    type: "training_completed",
+    message: "Model training completed",
+    actor: "System",
+    timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+    agentName: "Data Analysis Agent",
+  },
+  {
+    id: "4",
+    type: "agent_error",
+    message: "Execution error detected",
+    actor: "System",
+    timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
+    agentName: "Code Review Agent",
+  },
+  {
+    id: "5",
+    type: "marketplace_install",
+    message: "Template installed from marketplace",
+    actor: "Bob Johnson",
+    timestamp: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
+    agentName: "Research Specialist",
+  },
+  {
+    id: "6",
+    type: "settings_change",
+    message: "Notification settings updated",
+    actor: "Alice Brown",
+    timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
+  },
+]
+
+const eventConfig: Record<
+  ActivityEvent["type"],
+  { icon: React.ReactNode; colour: string }
+> = {
+  agent_created: { icon: <Bot className="h-4 w-4" />, colour: "text-primary" },
+  lifecycle_transition: { icon: <RefreshCw className="h-4 w-4" />, colour: "text-accent" },
+  training_completed: { icon: <Zap className="h-4 w-4" />, colour: "text-emerald-500" },
+  agent_error: { icon: <AlertCircle className="h-4 w-4" />, colour: "text-destructive" },
+  marketplace_install: { icon: <Download className="h-4 w-4" />, colour: "text-secondary" },
+  settings_change: { icon: <Settings className="h-4 w-4" />, colour: "text-muted-foreground" },
+}
 
 export function RecentActivity() {
-  const activities = [
-    {
-      id: 1,
-      agent: "Customer Support Agent",
-      action: "Resolved ticket #1234",
-      status: "success",
-      timestamp: new Date(Date.now() - 1000 * 60 * 5), // 5 minutes ago
-    },
-    {
-      id: 2,
-      agent: "Data Analysis Agent",
-      action: "Generated weekly report",
-      status: "success",
-      timestamp: new Date(Date.now() - 1000 * 60 * 15), // 15 minutes ago
-    },
-    {
-      id: 3,
-      agent: "Content Generator",
-      action: "Created 5 social media posts",
-      status: "success",
-      timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-    },
-    {
-      id: 4,
-      agent: "Scheduling Assistant",
-      action: "Failed to book appointment",
-      status: "error",
-      timestamp: new Date(Date.now() - 1000 * 60 * 45), // 45 minutes ago
-    },
-    {
-      id: 5,
-      agent: "Research Agent",
-      action: "Completed market research",
-      status: "success",
-      timestamp: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
-    },
-    {
-      id: 6,
-      agent: "Email Assistant",
-      action: "Sent 15 follow-up emails",
-      status: "success",
-      timestamp: new Date(Date.now() - 1000 * 60 * 90), // 1.5 hours ago
-    },
-  ]
-
   return (
     <Card>
       <CardHeader>
         <CardTitle>Recent Activity</CardTitle>
-        <CardDescription>Your agents' latest actions and status updates</CardDescription>
+        <CardDescription>Latest platform events and agent updates</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {activities.map((activity) => (
-            <div key={activity.id} className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
-              <div>
-                <p className="text-sm font-medium">{activity.agent}</p>
-                <p className="text-sm text-muted-foreground">{activity.action}</p>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Badge variant={activity.status === "success" ? "default" : "destructive"}>{activity.status}</Badge>
-                <span className="text-xs text-muted-foreground">
-                  {formatDistanceToNow(activity.timestamp, { addSuffix: true })}
+        <div className="max-h-80 overflow-y-auto space-y-3 pr-1">
+          {activities.map((activity) => {
+            const config = eventConfig[activity.type]
+            return (
+              <div
+                key={activity.id}
+                className="flex items-start gap-3 border-b pb-3 last:border-0 last:pb-0"
+              >
+                <div className={`mt-0.5 shrink-0 ${config.colour}`}>{config.icon}</div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium">
+                    {activity.message}
+                    {activity.agentName && (
+                      <span className="text-primary"> — {activity.agentName}</span>
+                    )}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{activity.actor}</p>
+                </div>
+                <span className="text-xs text-muted-foreground shrink-0">
+                  {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}
                 </span>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </CardContent>
     </Card>
