@@ -20,7 +20,7 @@ export function NewsArticles({ category, bookmarkedIds, onToggleBookmark }: News
 
   const handleShare = async (article: (typeof newsArticles)[number]) => {
     try {
-      await navigator.clipboard.writeText(article.title)
+      await navigator.clipboard.writeText(article.sourceUrl)
       toast.success("Link copied!")
     } catch {
       toast.error("Failed to copy link.")
