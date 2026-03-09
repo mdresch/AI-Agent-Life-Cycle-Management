@@ -1,90 +1,79 @@
 "use client"
 
+import { Activity, Coins, Users } from "lucide-react"
+import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { UsageChart } from "@/components/charts/usage-chart"
+import { KpiCard } from "@/components/dashboard/kpi-card"
+import type { UsageDataPoint, UsageKpis } from "@/lib/mock-data/analytics"
 
-export function UsageMetrics() {
-  const usageData = [
-    { name: "Customer Support", value: 42 },
-    { name: "Data Analysis", value: 28 },
-    { name: "Content Generation", value: 15 },
-    { name: "Research", value: 10 },
-    { name: "Other", value: 5 },
-  ]
+interface UsageMetricsProps {
+  kpis: UsageKpis
+  series: UsageDataPoint[]
+}
 
+function formatLargeNumber(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`
+  return String(n)
+}
+
+export function UsageMetrics({ kpis, series }: UsageMetricsProps) {
   return (
     <div className="space-y-4">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Requests</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">1,248,592</div>
-            <p className="text-xs text-muted-foreground">+12.5% from last month</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">API Usage</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">78.4%</div>
-            <Progress value={78.4} className="mt-2" />
-            <p className="mt-1 text-xs text-muted-foreground">Of monthly quota</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Token Usage</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">24.6M</div>
-            <p className="text-xs text-muted-foreground">+8.3% from last month</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">12,845</div>
-            <p className="text-xs text-muted-foreground">+5.2% from last week</p>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <KpiCard
+          label="Token Consumption"
+          value={formatLargeNumber(kpis.totalTokens)}
+          trend="up"
+          trendValue="vs previous period"
+          icon={<Coins className="h-4 w-4" />}
+        />
+        <KpiCard
+          label="Total Requests"
+          value={formatLargeNumber(kpis.totalRequests)}
+          trend="up"
+          trendValue="vs previous period"
+          icon={<Activity className="h-4 w-4" />}
+        />
+        <KpiCard
+          label="Active Users"
+          value={formatLargeNumber(kpis.activeUsers)}
+          trend="up"
+          trendValue="vs previous period"
+          icon={<Users className="h-4 w-4" />}
+        />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Usage Distribution</CardTitle>
-            <CardDescription>Request distribution by agent type</CardDescription>
-          </CardHeader>
-          <CardContent className="h-[300px]">
-            <UsageChart data={usageData} />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Usage Breakdown</CardTitle>
-            <CardDescription>Detailed usage by agent type</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {usageData.map((item) => (
-                <div key={item.name} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">{item.name}</span>
-                    <span className="text-sm text-muted-foreground">{item.value}%</span>
-                  </div>
-                  <Progress value={item.value} />
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Usage Over Time</CardTitle>
+          <CardDescription>Tokens, requests, and active users across the selected period</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={280}>
+            <AreaChart data={series} margin={{ top: 5, right: 16, left: 8, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted" />
+              <XAxis dataKey="date" tickLine={false} axisLine={false} tick={{ fontSize: 11 }} />
+              <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 11 }} tickFormatter={formatLargeNumber} />
+              <Tooltip
+                contentStyle={{
+                  borderRadius: "8px",
+                  border: "1px solid hsl(var(--border))",
+                  boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
+                }}
+                formatter={(value: number, name: string) => {
+                  const labels: Record<string, string> = { tokens: "Tokens", requests: "Requests", users: "Users" }
+                  return [formatLargeNumber(value), labels[name] ?? name]
+                }}
+              />
+              <Legend formatter={(v: string) => ({ tokens: "Tokens", requests: "Requests", users: "Users" }[v] ?? v)} />
+              <Area type="monotone" dataKey="tokens"   fill="hsl(var(--chart-1))" fillOpacity={0.2} stroke="hsl(var(--chart-1))" strokeWidth={2} />
+              <Area type="monotone" dataKey="requests" fill="hsl(var(--chart-2))" fillOpacity={0.2} stroke="hsl(var(--chart-2))" strokeWidth={2} />
+              <Area type="monotone" dataKey="users"    fill="hsl(var(--chart-3))" fillOpacity={0.2} stroke="hsl(var(--chart-3))" strokeWidth={2} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
     </div>
   )
 }

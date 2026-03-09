@@ -1,98 +1,126 @@
 "use client"
 
 import { useState } from "react"
+import { Grid2X2, List, Search } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Search, Filter, Grid3X3, LayoutGrid, ListFilter } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
+import { BusinessAgentsHeader } from "@/components/business-agents/business-agents-header"
+import { DepartmentDistributionChart } from "@/components/business-agents/department-distribution-chart"
+import { DepartmentCardGrid } from "@/components/business-agents/department-card-grid"
+import { KnowledgeDomainsCard } from "@/components/business-agents/knowledge-domains-card"
 import { DepartmentView } from "@/components/business-agents/department-view"
 import { DivisionView } from "@/components/business-agents/division-view"
 import { ExpertiseView } from "@/components/business-agents/expertise-view"
-import { BusinessAgentsOverview } from "@/components/business-agents/business-agents-overview"
+
+interface AgentFilterBarProps {
+  searchQuery: string
+  onSearchChange: (value: string) => void
+  viewMode: "grid" | "list"
+  onViewModeChange: (mode: "grid" | "list") => void
+}
+
+function AgentFilterBar({
+  searchQuery,
+  onSearchChange,
+  viewMode,
+  onViewModeChange,
+}: AgentFilterBarProps) {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="relative flex-1 max-w-sm">
+        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search agents…"
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
+          className="pl-8"
+        />
+      </div>
+      <Button
+        variant={viewMode === "grid" ? "default" : "outline"}
+        size="icon"
+        onClick={() => onViewModeChange("grid")}
+        aria-label="Grid view"
+      >
+        <Grid2X2 className="h-4 w-4" />
+      </Button>
+      <Button
+        variant={viewMode === "list" ? "default" : "outline"}
+        size="icon"
+        onClick={() => onViewModeChange("list")}
+        aria-label="List view"
+      >
+        <List className="h-4 w-4" />
+      </Button>
+    </div>
+  )
+}
 
 export function BusinessAgentsDashboard() {
   const [searchQuery, setSearchQuery] = useState("")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <div className="relative w-full max-w-sm">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search agents..."
-              className="pl-8"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <Button variant="outline" size="icon">
-            <Filter className="h-4 w-4" />
-            <span className="sr-only">Filter</span>
-          </Button>
-          <Select defaultValue="all">
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter by category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              <SelectItem value="hr">Human Resources</SelectItem>
-              <SelectItem value="marketing">Marketing</SelectItem>
-              <SelectItem value="sales">Sales</SelectItem>
-              <SelectItem value="customer-service">Customer Service</SelectItem>
-              <SelectItem value="it">IT Department</SelectItem>
-              <SelectItem value="finance">Finance</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="border rounded-md p-1 flex">
-            <Button
-              variant={viewMode === "grid" ? "default" : "ghost"}
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setViewMode("grid")}
-            >
-              <Grid3X3 className="h-4 w-4" />
-              <span className="sr-only">Grid view</span>
-            </Button>
-            <Button
-              variant={viewMode === "list" ? "default" : "ghost"}
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setViewMode("list")}
-            >
-              <LayoutGrid className="h-4 w-4" />
-              <span className="sr-only">List view</span>
-            </Button>
-          </div>
-          <Button variant="outline">
-            <ListFilter className="mr-2 h-4 w-4" />
-            Advanced Filters
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <BusinessAgentsHeader />
 
-      <BusinessAgentsOverview />
-
-      <Tabs defaultValue="departments">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="departments">By Department</TabsTrigger>
-          <TabsTrigger value="divisions">By Division</TabsTrigger>
-          <TabsTrigger value="expertise">By Expertise</TabsTrigger>
+      <Tabs defaultValue="overview">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="divisions">Divisions</TabsTrigger>
+          <TabsTrigger value="departments">Departments</TabsTrigger>
+          <TabsTrigger value="expertise">Expertise</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="departments" className="pt-4">
-          <DepartmentView viewMode={viewMode} searchQuery={searchQuery} />
+        <TabsContent value="overview" className="space-y-6 pt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Agent Distribution by Department</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DepartmentDistributionChart />
+            </CardContent>
+          </Card>
+          <DepartmentCardGrid />
+          <Card>
+            <CardHeader>
+              <CardTitle>Top Knowledge Domains</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <KnowledgeDomainsCard />
+            </CardContent>
+          </Card>
         </TabsContent>
 
-        <TabsContent value="divisions" className="pt-4">
+        <TabsContent value="divisions" className="space-y-4 pt-4">
+          <AgentFilterBar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+          />
           <DivisionView viewMode={viewMode} searchQuery={searchQuery} />
         </TabsContent>
 
-        <TabsContent value="expertise" className="pt-4">
+        <TabsContent value="departments" className="space-y-4 pt-4">
+          <AgentFilterBar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+          />
+          <DepartmentView viewMode={viewMode} searchQuery={searchQuery} />
+        </TabsContent>
+
+        <TabsContent value="expertise" className="space-y-4 pt-4">
+          <AgentFilterBar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+          />
           <ExpertiseView viewMode={viewMode} searchQuery={searchQuery} />
         </TabsContent>
       </Tabs>
