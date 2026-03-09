@@ -355,52 +355,52 @@ export const businessAgents: BusinessAgent[] = [
 export const knowledgeDomains: KnowledgeDomain[] = [
   {
     domain: "Customer Data",
-    agentCount: 42,
+    agentCount: 12,
     topDepartments: ["Customer Service", "Sales", "Marketing"],
   },
   {
     domain: "IT Systems",
-    agentCount: 38,
+    agentCount: 11,
     topDepartments: ["IT", "Operations"],
   },
   {
     domain: "Product Knowledge",
-    agentCount: 35,
+    agentCount: 10,
     topDepartments: ["Sales", "Marketing", "Customer Service"],
   },
   {
     domain: "Marketing Analytics",
-    agentCount: 28,
+    agentCount: 9,
     topDepartments: ["Marketing", "Sales"],
   },
   {
     domain: "Financial Compliance",
-    agentCount: 24,
+    agentCount: 8,
     topDepartments: ["Finance", "Legal"],
   },
   {
     domain: "HR Policies",
-    agentCount: 22,
+    agentCount: 7,
     topDepartments: ["HR", "Legal"],
   },
   {
     domain: "Sales Strategy",
-    agentCount: 20,
+    agentCount: 6,
     topDepartments: ["Sales", "Marketing"],
   },
   {
     domain: "Operations Management",
-    agentCount: 18,
+    agentCount: 5,
     topDepartments: ["Operations", "IT"],
   },
   {
     domain: "Data Analysis",
-    agentCount: 15,
+    agentCount: 4,
     topDepartments: ["IT", "Finance", "Marketing"],
   },
   {
     domain: "Legal Research",
-    agentCount: 10,
+    agentCount: 3,
     topDepartments: ["Legal", "HR"],
   },
 ]
