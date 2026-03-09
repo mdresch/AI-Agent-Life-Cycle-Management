@@ -12,7 +12,8 @@ export function BusinessAgentsHeader() {
   )
 
   const specialisedCount = businessAgents.filter((a) => a.isSpecialised).length
-  const specialisedRatio = ((specialisedCount / businessAgents.length) * 100).toFixed(0) + "%"
+  const specialisedRatio =
+    totalAgents === 0 ? "0%" : ((specialisedCount / totalAgents) * 100).toFixed(0) + "%"
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
