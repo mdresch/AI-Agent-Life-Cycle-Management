@@ -189,3 +189,50 @@ export interface CreateAgentPayload {
   tools: AgentTool[]
   autoActivate: boolean
 }
+
+// ── Marketplace ────────────────────────────────────────────────────────────
+export interface MarketplaceListing {
+  id: string
+  agentId: string
+  title: string
+  description: string
+  category: AgentType
+  authorName: string
+  authorId: string
+  rating: number
+  reviewCount: number
+  downloadCount: number
+  version: string
+  publishedAt: string
+  updatedAt: string
+  isFeatured: boolean
+  isInstalled: boolean
+  installedVersion?: string
+  iconName?: string
+}
+
+export interface MarketplaceKpis {
+  totalListings: number
+  totalDownloads: number
+  averageRating: number
+  newThisWeek: number
+}
+
+export interface MarketplaceSubscription {
+  id: string
+  listingId: string
+  title: string
+  category: AgentType
+  installedVersion: string
+  latestVersion: string
+  hasUpdate: boolean
+  installedAt: string
+}
+
+export interface PublishAgentPayload {
+  agentId: string
+  title: string
+  description: string
+  category: AgentType
+  version: string
+}

@@ -1,257 +1,160 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { useState } from "react"
+import { toast } from "sonner"
+import { Loader2, RefreshCw } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { ArrowUpDown, Download, RotateCcw, Settings, Trash2, CreditCard, AlertTriangle } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import type { MarketplaceSubscription } from "@/lib/types"
 
-export function MarketplaceSubscriptions() {
-  const subscriptions = [
-    {
-      id: 1,
-      name: "Data Visualization Expert",
-      category: "Analytics",
-      status: "active",
-      price: "$9.99/mo",
-      nextBilling: "May 15, 2025",
-      installed: true,
-    },
-    {
-      id: 2,
-      name: "Content Creation Suite",
-      category: "Creative",
-      status: "active",
-      price: "$14.99/mo",
-      nextBilling: "May 22, 2025",
-      installed: true,
-    },
-    {
-      id: 3,
-      name: "Meeting Assistant Pro",
-      category: "Productivity",
-      status: "active",
-      price: "$7.99/mo",
-      nextBilling: "Jun 05, 2025",
-      installed: true,
-    },
-    {
-      id: 4,
-      name: "Market Research Agent",
-      category: "Research",
-      status: "paused",
-      price: "$19.99/mo",
-      nextBilling: "Paused",
-      installed: false,
-    },
-  ]
-
-  const freeAgents = [
-    {
-      id: 1,
-      name: "Advanced Customer Support Agent",
-      category: "Support",
-      installed: true,
-      lastUpdated: "Apr 10, 2025",
-    },
-    {
-      id: 2,
-      name: "Basic Email Assistant",
-      category: "Communication",
-      installed: true,
-      lastUpdated: "Mar 25, 2025",
-    },
-    {
-      id: 3,
-      name: "Simple Scheduler",
-      category: "Productivity",
-      installed: false,
-      lastUpdated: "Feb 18, 2025",
-    },
-  ]
-
-  return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Paid Subscriptions</CardTitle>
-          <CardDescription>Manage your paid agent subscriptions</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Agent</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Next Billing</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {subscriptions.map((subscription) => (
-                <TableRow key={subscription.id}>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{subscription.name}</p>
-                      <p className="text-xs text-muted-foreground">{subscription.category}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={subscription.status === "active" ? "default" : "secondary"}>
-                      {subscription.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{subscription.price}</TableCell>
-                  <TableCell>{subscription.nextBilling}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      {subscription.installed ? (
-                        <Button variant="outline" size="sm">
-                          <Settings className="mr-2 h-4 w-4" />
-                          Configure
-                        </Button>
-                      ) : (
-                        <Button variant="outline" size="sm">
-                          <Download className="mr-2 h-4 w-4" />
-                          Install
-                        </Button>
-                      )}
-                      <Button variant="outline" size="sm">
-                        {subscription.status === "active" ? (
-                          <>
-                            <ArrowUpDown className="mr-2 h-4 w-4" />
-                            Pause
-                          </>
-                        ) : (
-                          <>
-                            <RotateCcw className="mr-2 h-4 w-4" />
-                            Resume
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-        <CardFooter className="flex justify-between">
-          <div className="text-sm text-muted-foreground">Total monthly: $32.97</div>
-          <Button variant="outline" size="sm">
-            <CreditCard className="mr-2 h-4 w-4" />
-            Manage Billing
-          </Button>
-        </CardFooter>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Free Agents</CardTitle>
-          <CardDescription>Free agents you've downloaded from the marketplace</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Agent</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Last Updated</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {freeAgents.map((agent) => (
-                <TableRow key={agent.id}>
-                  <TableCell>
-                    <div className="font-medium">{agent.name}</div>
-                  </TableCell>
-                  <TableCell>{agent.category}</TableCell>
-                  <TableCell>
-                    <Badge variant={agent.installed ? "default" : "outline"}>
-                      {agent.installed ? "Installed" : "Not Installed"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{agent.lastUpdated}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      {agent.installed ? (
-                        <>
-                          <Button variant="outline" size="sm">
-                            <Settings className="mr-2 h-4 w-4" />
-                            Configure
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Uninstall
-                          </Button>
-                        </>
-                      ) : (
-                        <Button variant="outline" size="sm">
-                          <Download className="mr-2 h-4 w-4" />
-                          Install
-                        </Button>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Subscription Management</CardTitle>
-          <CardDescription>Manage your marketplace subscriptions and billing</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="rounded-lg border p-4">
-            <div className="flex items-start space-x-4">
-              <div className="rounded-full bg-yellow-100 p-2">
-                <AlertTriangle className="h-6 w-6 text-yellow-600" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-medium">Payment Method Expiring</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Your credit card ending in 4242 will expire next month. Please update your payment method to avoid
-                  service interruption.
-                </p>
-                <Button className="mt-4" size="sm">
-                  <CreditCard className="mr-2 h-4 w-4" />
-                  Update Payment Method
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-lg border p-4">
-              <h3 className="text-sm font-medium mb-2">Billing Cycle</h3>
-              <p className="text-sm text-muted-foreground">
-                Your subscriptions are billed on different dates based on when you subscribed. You can align all billing
-                dates.
-              </p>
-              <Button variant="outline" className="mt-4" size="sm">
-                Align Billing Dates
-              </Button>
-            </div>
-            <div className="rounded-lg border p-4">
-              <h3 className="text-sm font-medium mb-2">Subscription History</h3>
-              <p className="text-sm text-muted-foreground">
-                View your subscription history, past invoices, and payment receipts.
-              </p>
-              <Button variant="outline" className="mt-4" size="sm">
-                View History
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  )
+const CATEGORY_LABELS: Record<string, string> = {
+  "customer-support": "Customer Support",
+  analytics: "Analytics",
+  creative: "Creative",
+  productivity: "Productivity",
+  research: "Research",
+  communication: "Communication",
+  custom: "Custom",
 }
 
+interface SubscriptionsListProps {
+  subscriptions: MarketplaceSubscription[]
+}
+
+export function SubscriptionsList({ subscriptions: initialSubscriptions }: SubscriptionsListProps) {
+  const [subscriptions, setSubscriptions] = useState(initialSubscriptions)
+  const [updatingId, setUpdatingId] = useState<string | null>(null)
+
+  const handleUpdate = (sub: MarketplaceSubscription) => {
+    setUpdatingId(sub.id)
+    setTimeout(() => {
+      setSubscriptions((prev) =>
+        prev.map((s) =>
+          s.id === sub.id
+            ? { ...s, installedVersion: s.latestVersion, hasUpdate: false }
+            : s,
+        ),
+      )
+      setUpdatingId(null)
+      toast.success(`Updated to v${sub.latestVersion}`)
+    }, 1000)
+  }
+
+  const handleUnsubscribe = (id: string) => {
+    setSubscriptions((prev) => prev.filter((s) => s.id !== id))
+    toast.success("Unsubscribed successfully")
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>My Subscriptions</CardTitle>
+        <CardDescription>Manage the agents installed in your workspace</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Agent</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Installed Version</TableHead>
+              <TableHead>Latest Version</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {subscriptions.map((sub) => (
+              <TableRow key={sub.id}>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{sub.title}</span>
+                    {sub.hasUpdate && (
+                      <Badge
+                        variant="outline"
+                        className="text-amber-600 border-amber-400 bg-amber-50 text-xs"
+                      >
+                        Update Available
+                      </Badge>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Badge variant="secondary" className="text-xs">
+                    {CATEGORY_LABELS[sub.category] ?? sub.category}
+                  </Badge>
+                </TableCell>
+                <TableCell className="font-mono text-sm">v{sub.installedVersion}</TableCell>
+                <TableCell className="font-mono text-sm">v{sub.latestVersion}</TableCell>
+                <TableCell className="text-right">
+                  <div className="flex items-center justify-end gap-2">
+                    {sub.hasUpdate && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={updatingId === sub.id}
+                        onClick={() => handleUpdate(sub)}
+                      >
+                        {updatingId === sub.id ? (
+                          <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <RefreshCw className="mr-1 h-3.5 w-3.5" />
+                        )}
+                        Update
+                      </Button>
+                    )}
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive">
+                          Unsubscribe
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Unsubscribe from agent?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will remove{" "}
+                            <span className="font-medium">{sub.title}</span> from your workspace.
+                            You can reinstall it from the marketplace at any time.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            onClick={() => handleUnsubscribe(sub.id)}
+                          >
+                            Unsubscribe
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+            {subscriptions.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  No active subscriptions. Browse the marketplace to install agents.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  )
+}
