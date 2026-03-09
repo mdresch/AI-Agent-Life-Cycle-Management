@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Loader2, RefreshCw } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
@@ -35,6 +35,15 @@ export function TrendsDashboard() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date())
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set())
+  const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (refreshTimerRef.current !== null) {
+        clearTimeout(refreshTimerRef.current)
+      }
+    }
+  }, [])
 
   const toggleBookmark = (id: string) => {
     setBookmarkedIds((prev) => {
@@ -49,10 +58,14 @@ export function TrendsDashboard() {
   }
 
   const handleRefresh = () => {
+    if (refreshTimerRef.current !== null) {
+      clearTimeout(refreshTimerRef.current)
+    }
     setIsRefreshing(true)
-    setTimeout(() => {
+    refreshTimerRef.current = setTimeout(() => {
       setIsRefreshing(false)
       setLastUpdated(new Date())
+      refreshTimerRef.current = null
     }, 1500)
   }
 

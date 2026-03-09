@@ -34,73 +34,6 @@ export interface KnowledgeDomain {
   topDepartments: Department[]
 }
 
-export const departmentSummaries: DepartmentSummary[] = [
-  {
-    department: "HR",
-    agentCount: 18,
-    percentage: 11,
-    activeCount: 15,
-    icon: "Users",
-    color: "hsl(var(--chart-1))",
-  },
-  {
-    department: "Marketing",
-    agentCount: 24,
-    percentage: 15,
-    activeCount: 20,
-    icon: "Megaphone",
-    color: "hsl(var(--chart-2))",
-  },
-  {
-    department: "Sales",
-    agentCount: 22,
-    percentage: 14,
-    activeCount: 19,
-    icon: "TrendingUp",
-    color: "hsl(var(--chart-3))",
-  },
-  {
-    department: "Customer Service",
-    agentCount: 28,
-    percentage: 17,
-    activeCount: 25,
-    icon: "HeadphonesIcon",
-    color: "hsl(var(--chart-4))",
-  },
-  {
-    department: "IT",
-    agentCount: 32,
-    percentage: 20,
-    activeCount: 30,
-    icon: "Monitor",
-    color: "hsl(var(--chart-5))",
-  },
-  {
-    department: "Finance",
-    agentCount: 16,
-    percentage: 10,
-    activeCount: 13,
-    icon: "DollarSign",
-    color: "hsl(var(--chart-1))",
-  },
-  {
-    department: "Operations",
-    agentCount: 14,
-    percentage: 9,
-    activeCount: 11,
-    icon: "Settings2",
-    color: "hsl(var(--chart-2))",
-  },
-  {
-    department: "Legal",
-    agentCount: 8,
-    percentage: 5,
-    activeCount: 6,
-    icon: "Scale",
-    color: "hsl(var(--chart-3))",
-  },
-]
-
 export const businessAgents: BusinessAgent[] = [
   // HR (4 records)
   {
@@ -351,6 +284,35 @@ export const businessAgents: BusinessAgent[] = [
     model: "claude-3-sonnet",
   },
 ]
+
+// Static presentation metadata per department (icon + colour only)
+const DEPARTMENT_META: Record<Department, { icon: string; color: string }> = {
+  HR: { icon: "Users", color: "hsl(var(--chart-1))" },
+  Marketing: { icon: "Megaphone", color: "hsl(var(--chart-2))" },
+  Sales: { icon: "TrendingUp", color: "hsl(var(--chart-3))" },
+  "Customer Service": { icon: "HeadphonesIcon", color: "hsl(var(--chart-4))" },
+  IT: { icon: "Monitor", color: "hsl(var(--chart-5))" },
+  Finance: { icon: "DollarSign", color: "hsl(var(--chart-1))" },
+  Operations: { icon: "Settings2", color: "hsl(var(--chart-2))" },
+  Legal: { icon: "Scale", color: "hsl(var(--chart-3))" },
+}
+
+// Derived from businessAgents — single source of truth
+export const departmentSummaries: DepartmentSummary[] = (
+  Object.keys(DEPARTMENT_META) as Department[]
+).map((dept) => {
+  const deptAgents = businessAgents.filter((a) => a.department === dept)
+  const agentCount = deptAgents.length
+  const activeCount = deptAgents.filter((a) => a.status === "active").length
+  return {
+    department: dept,
+    agentCount,
+    percentage:
+      businessAgents.length === 0 ? 0 : Math.round((agentCount / businessAgents.length) * 100),
+    activeCount,
+    ...DEPARTMENT_META[dept],
+  }
+})
 
 export const knowledgeDomains: KnowledgeDomain[] = [
   {
