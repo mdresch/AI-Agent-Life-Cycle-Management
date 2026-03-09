@@ -51,24 +51,34 @@ The platform is a production-ready web application for the **end-to-end governan
 - **Lifecycle Management:** `LifecycleHeader` KPI cards, stage progress bars, colour-coded stage transition badges, 3-step guided retirement workflow.
 - **Auth & Settings:** Login page (`/login`) with demo credentials (`demo@example.com` / `demo1234`), cookie-based session middleware, forgot-password placeholder, updated `UserNav` with sign-out, `usePermission` RBAC guard hook.
 
-### Phase 2 — Extended Modules (can run in parallel after Phase 1)
-| Work Item | Plan File |
-|---|---|
-| Business Agents | [04-business-agents.md](./04-business-agents.md) |
-| AI Studio | [05-ai-studio.md](./05-ai-studio.md) |
-| Trends & Research | [06-trends-research.md](./06-trends-research.md) |
-| Analytics | [09-analytics.md](./09-analytics.md) |
+### Phase 2 — Extended Modules ✅ COMPLETED
+| Work Item | Plan File | Status |
+|---|---|---|
+| Business Agents | [04-business-agents.md](./04-business-agents.md) | ✅ Done |
+| AI Studio | [05-ai-studio.md](./05-ai-studio.md) | ✅ Done |
+| Trends & Research | [06-trends-research.md](./06-trends-research.md) | ✅ Done |
+| Analytics | [09-analytics.md](./09-analytics.md) | ✅ Done |
 
-### Phase 3 — Marketplace & Backend (depends on Phase 1 + 2)
-| Work Item | Plan File |
-|---|---|
-| Marketplace | [08-marketplace.md](./08-marketplace.md) |
-| Backend API & Data Layer | [11-backend-api.md](./11-backend-api.md) |
+**Phase 2 Implementation Summary (completed 2026-03-09):**
+- **Business Agents:** `/business-agents` page with department/division/expertise-domain drill-down views, department card grid, distribution chart, knowledge-domains card, and agent roster (`lib/mock-data/business-agents.ts`; `components/business-agents/**`).
+- **AI Studio:** `/studio` page with project workspace, prompt library, new-prompt dialog, training ground with scenario runner, training metrics charts, and recent activity feed (`lib/mock-data/studio.ts`; `components/studio/**`).
+- **Trends & Research:** `/trends` page with technology radar, trending topics, breakthrough alert cards, news articles, and research highlights (`lib/mock-data/trends.ts`; `components/trends/**`).
+- **Analytics:** `/analytics` page with performance KPIs, usage metrics, error-rate chart, response-time chart, performance-trends chart, errors table, and CSV export (`lib/mock-data/analytics.ts`; `lib/utils/csv-export.ts`; `components/analytics/**`).
+
+### Phase 3 — Marketplace & Backend ✅ COMPLETED
+| Work Item | Plan File | Status |
+|---|---|---|
+| Marketplace | [08-marketplace.md](./08-marketplace.md) | ✅ Done |
+| Backend API & Data Layer | [11-backend-api.md](./11-backend-api.md) | ✅ Done |
+
+**Phase 3 Implementation Summary (completed 2026-03-09):**
+- **Marketplace:** `/marketplace` page with KPI cards, featured-agents Embla carousel, agent catalogue grid with category filter, star ratings, install/uninstall actions, subscriptions tab with update/unsubscribe, and publish form with Zod validation (`lib/mock-data/marketplace.ts`; `components/marketplace/**`). Public endpoints: `GET /api/marketplace`, `GET /api/marketplace/[id]`, `POST /api/marketplace`.
+- **Backend API & Data Layer:** REST Route Handlers in `app/api/` covering agents (`GET/POST /api/agents`, `PATCH/DELETE /api/agents/[id]`), marketplace (`GET /api/marketplace`, `GET /api/marketplace/[id]`, `POST /api/marketplace`), analytics (`GET /api/analytics/usage`, `GET /api/analytics/performance`, `GET /api/analytics/errors`), api-keys (`GET/POST /api/api-keys`), and users (`GET/PATCH /api/users/me`). Shared utilities: `lib/api/response.ts` (envelope helpers), `lib/api/with-auth.ts` (mock RBAC guard), `lib/api/sanitize.ts` (HTML-strip sanitizer), `lib/api/stores.ts` (in-memory stores). Prisma schema in `prisma/schema.prisma` ready for real-DB migration.
 
 ### Phase 4 — Quality Gates
-| Work Item | Plan File |
-|---|---|
-| Testing & QA | [12-testing-qa.md](./12-testing-qa.md) |
+| Work Item | Plan File | Status |
+|---|---|---|
+| Testing & QA | [12-testing-qa.md](./12-testing-qa.md) | 🔲 Pending |
 
 ---
 
@@ -252,13 +262,13 @@ The following questions must be answered by the repository owner before implemen
 | # | Question | Blocking? | Status |
 |---|---|---|---|
 | Q1 | Should dark mode use a deep navy background (e.g., `hsl(220, 40%, 8%)`) or the existing near-black (`hsl(0, 0%, 4%)`)? | No — agent can default to deep navy | ❓ Open |
-| Q2 | Which authentication provider should be used? Options: **Auth.js (NextAuth v5)**, **Clerk**, **Auth0**, or a custom JWT implementation. | ❓ Blocking for Agent 10 | ❓ Open |
-| Q3 | What database should be used for the initial production backend? Options: **PostgreSQL + Prisma**, **PlanetScale (MySQL + Prisma)**, **Supabase (Postgres + PostgREST)** | ❓ Blocking for Agent 11 | ❓ Open |
-| Q4 | Should the Trends & Research feed pull from a real external API (e.g., NewsAPI, arXiv) or remain seeded with curated mock data for v1? | No — agent can use mock data with a real-API adapter stub | ❓ Open |
-| Q5 | Is the AI trends feed data subject to any licensing or attribution requirements? | No — if mock data is used | ❓ Open |
-| Q6 | Should the Marketplace have a review/approval workflow before published agents go live, or should publication be instant for v1? | No — agent can implement instant publish with a "pending review" status stub | ❓ Open |
+| Q2 | Which authentication provider should be used? Options: **Auth.js (NextAuth v5)**, **Clerk**, **Auth0**, or a custom JWT implementation. | ❓ Blocking for Agent 10 | ✅ Resolved — mock cookie session (`ai-platform-session`) implemented for v1; real provider deferred to post-v1 |
+| Q3 | What database should be used for the initial production backend? Options: **PostgreSQL + Prisma**, **PlanetScale (MySQL + Prisma)**, **Supabase (Postgres + PostgREST)** | ❓ Blocking for Agent 11 | ✅ Resolved — Prisma schema (`prisma/schema.prisma`) targets PostgreSQL; in-memory mock stores used until a real DB is provisioned |
+| Q4 | Should the Trends & Research feed pull from a real external API (e.g., NewsAPI, arXiv) or remain seeded with curated mock data for v1? | No — agent can use mock data with a real-API adapter stub | ✅ Resolved — mock data used for v1 (`lib/mock-data/trends.ts`) |
+| Q5 | Is the AI trends feed data subject to any licensing or attribution requirements? | No — if mock data is used | ✅ Resolved — mock data only, no external attribution required |
+| Q6 | Should the Marketplace have a review/approval workflow before published agents go live, or should publication be instant for v1? | No — agent can implement instant publish for v1; review workflow and any `pending` status field are deferred and not yet implemented in the current API/model | ✅ Resolved — v1 uses instant publish with no review workflow; future versions may introduce a `pending` status field |
 | Q7 | What email provider (SMTP credentials / SES / Resend / Postmark) should be configured for team invitations and notifications? | No — agent can implement a provider-agnostic adapter | ❓ Open |
-| Q8 | Should OAuth / SSO (Google, Microsoft) be in scope for v1 authentication? | No — can be Phase 3 | ❓ Open |
+| Q8 | Should OAuth / SSO (Google, Microsoft) be in scope for v1 authentication? | No — can be Phase 3 | ✅ Resolved — deferred; mock session only for v1 |
 | Q9 | Are there any branding assets (logo, favicon) that should replace the current placeholder? | No — agent can use a styled text logo | ❓ Open |
 | Q10 | Should the navy blue color scheme apply to both light mode and dark mode, or only to one of them? | No — plan assumes navy-first light mode, deep-navy dark mode | ❓ Open |
 
