@@ -19,6 +19,7 @@ export function MarketplaceDashboard() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [sortBy, setSortBy] = useState("most-downloads")
+  const [activeTab, setActiveTab] = useState("browse")
 
   const handleInstall = (id: string) => {
     setListings((prev) =>
@@ -42,7 +43,7 @@ export function MarketplaceDashboard() {
     <div className="space-y-6">
       <MarketplaceKpis kpis={mockMarketplaceKpis} />
 
-      <Tabs defaultValue="browse">
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <TabsList>
             <TabsTrigger value="browse">Browse</TabsTrigger>
@@ -50,7 +51,7 @@ export function MarketplaceDashboard() {
             <TabsTrigger value="publish">Publish</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="browse" asChild>
+          {activeTab === "browse" && (
             <div className="flex flex-wrap items-center gap-2">
               <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -87,7 +88,7 @@ export function MarketplaceDashboard() {
                 </SelectContent>
               </Select>
             </div>
-          </TabsContent>
+          )}
         </div>
 
         <TabsContent value="browse" className="space-y-6 mt-4">

@@ -1,5 +1,6 @@
 import { KpiCard } from "@/components/dashboard/kpi-card"
 import { Download, Package, Sparkles, Star } from "lucide-react"
+import { formatDownloadCount } from "@/lib/marketplace-utils"
 import type { MarketplaceKpis as MarketplaceKpisType } from "@/lib/types"
 
 interface MarketplaceKpisProps {
@@ -7,11 +8,6 @@ interface MarketplaceKpisProps {
 }
 
 export function MarketplaceKpis({ kpis }: MarketplaceKpisProps) {
-  const formattedDownloads =
-    kpis.totalDownloads >= 1000
-      ? `${(kpis.totalDownloads / 1000).toFixed(1)}K`
-      : String(kpis.totalDownloads)
-
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <KpiCard
@@ -23,7 +19,7 @@ export function MarketplaceKpis({ kpis }: MarketplaceKpisProps) {
       />
       <KpiCard
         label="Total Downloads"
-        value={formattedDownloads}
+        value={formatDownloadCount(kpis.totalDownloads)}
         trend="up"
         trendValue="+12.5% this month"
         icon={<Download className="h-4 w-4" />}

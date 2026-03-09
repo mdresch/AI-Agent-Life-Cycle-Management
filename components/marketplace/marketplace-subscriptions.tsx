@@ -18,17 +18,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { CATEGORY_LABELS } from "@/lib/marketplace-utils"
 import type { MarketplaceSubscription } from "@/lib/types"
-
-const CATEGORY_LABELS: Record<string, string> = {
-  "customer-support": "Customer Support",
-  analytics: "Analytics",
-  creative: "Creative",
-  productivity: "Productivity",
-  research: "Research",
-  communication: "Communication",
-  custom: "Custom",
-}
 
 interface SubscriptionsListProps {
   subscriptions: MarketplaceSubscription[]

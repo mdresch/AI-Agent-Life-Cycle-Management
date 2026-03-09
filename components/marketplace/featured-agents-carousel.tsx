@@ -7,17 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { StarRating } from "@/components/marketplace/star-rating"
+import { CATEGORY_LABELS, formatDownloadCount } from "@/lib/marketplace-utils"
 import type { MarketplaceListing } from "@/lib/types"
-
-const CATEGORY_LABELS: Record<string, string> = {
-  "customer-support": "Customer Support",
-  analytics: "Analytics",
-  creative: "Creative",
-  productivity: "Productivity",
-  research: "Research",
-  communication: "Communication",
-  custom: "Custom",
-}
 
 interface FeaturedAgentsCarouselProps {
   listings: MarketplaceListing[]
@@ -73,10 +64,7 @@ interface FeaturedAgentCardProps {
 }
 
 function FeaturedAgentCard({ listing, onInstall }: FeaturedAgentCardProps) {
-  const formattedDownloads =
-    listing.downloadCount >= 1000
-      ? `${(listing.downloadCount / 1000).toFixed(1)}K`
-      : String(listing.downloadCount)
+  const formattedDownloads = formatDownloadCount(listing.downloadCount)
 
   return (
     <Card className="h-full flex flex-col">

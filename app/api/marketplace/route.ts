@@ -3,12 +3,9 @@ import * as z from "zod"
 import { withAuth } from "@/lib/api/with-auth"
 import { apiSuccess, apiError, apiPaginated, apiValidationError } from "@/lib/api/response"
 import { sanitizeObject } from "@/lib/api/sanitize"
-import { mockMarketplaceListings } from "@/lib/mock-data/marketplace"
+import { listingStore } from "@/lib/api/stores"
 import type { MarketplaceListing } from "@/lib/types"
 import { agentTypes } from "@/lib/schemas/agent-schema"
-
-// In production this would be a database. Each route file has its own in-memory copy.
-let listings: MarketplaceListing[] = [...mockMarketplaceListings]
 
 const createListingSchema = z.object({
   agentId: z.string().min(1),
@@ -21,10 +18,14 @@ const createListingSchema = z.object({
 // Public endpoint — no auth required
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
-  const page = parseInt(searchParams.get("page") ?? "1")
-  const pageSize = parseInt(searchParams.get("pageSize") ?? "20")
+  const page = parseInt(searchParams.get("page") ?? "1", 10)
+  const pageSize = parseInt(searchParams.get("pageSize") ?? "20", 10)
+
+  if (!Number.isFinite(page) || page < 1) return apiError("Query param 'page' must be a positive integer", 400)
+  if (!Number.isFinite(pageSize) || pageSize < 1) return apiError("Query param 'pageSize' must be a positive integer", 400)
+
   const start = (page - 1) * pageSize
-  return apiPaginated(listings.slice(start, start + pageSize), listings.length, page, pageSize)
+  return apiPaginated(listingStore.slice(start, start + pageSize), listingStore.length, page, pageSize)
 }
 
 export const POST = withAuth(async (req, session) => {
@@ -58,6 +59,6 @@ export const POST = withAuth(async (req, session) => {
     isFeatured: false,
     isInstalled: false,
   }
-  listings.push(newListing)
+  listingStore.push(newListing)
   return apiSuccess(newListing, 201)
 }, "member")

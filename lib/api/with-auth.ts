@@ -17,6 +17,12 @@ export function withAuth(
       return apiError("Unauthorized", 401)
     }
 
+    // ⚠ MOCK SESSION — for demo/development only.
+    // The session payload is hardcoded: role is always "owner", which means
+    // role-based access checks below can never deny access for any valid cookie.
+    // Before any staging or production deployment this MUST be replaced with real
+    // session decoding (e.g. Auth.js getServerSession or JWT verification) so that
+    // each user receives their actual role from the session store.
     const session: SessionPayload = {
       userId: "user-001",
       email: "demo@example.com",

@@ -3,18 +3,19 @@ import { withAuth } from "@/lib/api/with-auth"
 import { apiSuccess, apiError, apiPaginated, apiValidationError } from "@/lib/api/response"
 import { sanitizeObject } from "@/lib/api/sanitize"
 import { createAgentSchema } from "@/lib/schemas/agent-schema"
-import { mockAgents } from "@/lib/mock-data/agents"
+import { agentStore } from "@/lib/api/stores"
 import type { Agent } from "@/lib/types"
-
-// In production this would be a database. Each route file has its own in-memory copy.
-let agents: Agent[] = [...mockAgents]
 
 export const GET = withAuth(async (req) => {
   const { searchParams } = new URL(req.url)
-  const page = parseInt(searchParams.get("page") ?? "1")
-  const pageSize = parseInt(searchParams.get("pageSize") ?? "20")
+  const page = parseInt(searchParams.get("page") ?? "1", 10)
+  const pageSize = parseInt(searchParams.get("pageSize") ?? "20", 10)
+
+  if (!Number.isFinite(page) || page < 1) return apiError("Query param 'page' must be a positive integer", 400)
+  if (!Number.isFinite(pageSize) || pageSize < 1) return apiError("Query param 'pageSize' must be a positive integer", 400)
+
   const start = (page - 1) * pageSize
-  return apiPaginated(agents.slice(start, start + pageSize), agents.length, page, pageSize)
+  return apiPaginated(agentStore.slice(start, start + pageSize), agentStore.length, page, pageSize)
 })
 
 export const POST = withAuth(async (req) => {
@@ -43,6 +44,6 @@ export const POST = withAuth(async (req) => {
     updatedAt: new Date().toISOString(),
     createdBy: "user-001",
   }
-  agents.push(newAgent)
+  agentStore.push(newAgent)
   return apiSuccess(newAgent, 201)
 }, "member")

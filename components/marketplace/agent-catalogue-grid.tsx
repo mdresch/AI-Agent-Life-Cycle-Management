@@ -17,17 +17,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { StarRating } from "@/components/marketplace/star-rating"
+import { CATEGORY_LABELS, formatDownloadCount } from "@/lib/marketplace-utils"
 import type { MarketplaceListing } from "@/lib/types"
-
-const CATEGORY_LABELS: Record<string, string> = {
-  "customer-support": "Customer Support",
-  analytics: "Analytics",
-  creative: "Creative",
-  productivity: "Productivity",
-  research: "Research",
-  communication: "Communication",
-  custom: "Custom",
-}
 
 interface AgentCatalogueGridProps {
   listings: MarketplaceListing[]
@@ -97,10 +88,7 @@ interface CatalogueCardProps {
 }
 
 function CatalogueCard({ listing, onInstall, onUninstall }: CatalogueCardProps) {
-  const formattedDownloads =
-    listing.downloadCount >= 1000
-      ? `${(listing.downloadCount / 1000).toFixed(1)}K`
-      : String(listing.downloadCount)
+  const formattedDownloads = formatDownloadCount(listing.downloadCount)
 
   return (
     <Card className="flex flex-col">
