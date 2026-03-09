@@ -52,8 +52,16 @@ export function NewPromptDialog({ open, onOpenChange, onSave }: NewPromptDialogP
     onOpenChange(false)
   }
 
+  function handleDialogOpenChange(isOpen: boolean) {
+    if (!isOpen) {
+      handleClose()
+    } else {
+      onOpenChange(true)
+    }
+  }
+
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>New Prompt Template</DialogTitle>
