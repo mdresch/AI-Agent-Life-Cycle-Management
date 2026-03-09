@@ -9,10 +9,10 @@ let listings: MarketplaceListing[] = [...mockMarketplaceListings]
 
 type RouteContext = { params: Promise<{ id: string }> }
 
-export const GET = (req: NextRequest, ctx: RouteContext) =>
-  withAuth(async () => {
-    const { id } = await ctx.params
-    const listing = listings.find((l) => l.id === id)
-    if (!listing) return apiError("Listing not found", 404)
-    return apiSuccess(listing)
-  })(req)
+// Public endpoint — no auth required
+export async function GET(req: NextRequest, ctx: RouteContext) {
+  const { id } = await ctx.params
+  const listing = listings.find((l) => l.id === id)
+  if (!listing) return apiError("Listing not found", 404)
+  return apiSuccess(listing)
+}

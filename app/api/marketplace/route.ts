@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server"
 import * as z from "zod"
 import { withAuth } from "@/lib/api/with-auth"
-import { apiSuccess, apiError, apiPaginated } from "@/lib/api/response"
+import { apiSuccess, apiError, apiPaginated, apiValidationError } from "@/lib/api/response"
 import { sanitizeObject } from "@/lib/api/sanitize"
 import { mockMarketplaceListings } from "@/lib/mock-data/marketplace"
 import type { MarketplaceListing } from "@/lib/types"
@@ -18,13 +18,14 @@ const createListingSchema = z.object({
   version: z.string().regex(/^\d+\.\d+\.\d+$/, "Version must be semver (e.g. 1.0.0)"),
 })
 
-export const GET = withAuth(async (req) => {
+// Public endpoint — no auth required
+export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const page = parseInt(searchParams.get("page") ?? "1")
   const pageSize = parseInt(searchParams.get("pageSize") ?? "20")
   const start = (page - 1) * pageSize
   return apiPaginated(listings.slice(start, start + pageSize), listings.length, page, pageSize)
-})
+}
 
 export const POST = withAuth(async (req, session) => {
   let body: unknown
@@ -36,7 +37,7 @@ export const POST = withAuth(async (req, session) => {
 
   const parsed = createListingSchema.safeParse(body)
   if (!parsed.success) {
-    return apiError(parsed.error.errors.map(e => `${e.path.join(".")}: ${e.message}`).join("; "), 422)
+    return apiValidationError(parsed.error)
   }
 
   const sanitized = sanitizeObject(parsed.data as Record<string, unknown>)

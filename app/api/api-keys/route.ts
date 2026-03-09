@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server"
 import { createHash, randomBytes } from "crypto"
 import { withAuth } from "@/lib/api/with-auth"
-import { apiSuccess, apiError } from "@/lib/api/response"
+import { apiSuccess, apiError, apiValidationError } from "@/lib/api/response"
 import { sanitizeObject } from "@/lib/api/sanitize"
 import { mockApiKeys } from "@/lib/mock-data/settings"
 import type { ApiKey, ApiKeyPermission } from "@/lib/types"
@@ -35,7 +35,7 @@ export const POST = withAuth(async (req) => {
 
   const parsed = createKeySchema.safeParse(body)
   if (!parsed.success) {
-    return apiError(parsed.error.errors.map(e => `${e.path.join(".")}: ${e.message}`).join("; "), 422)
+    return apiValidationError(parsed.error)
   }
 
   const sanitized = sanitizeObject(parsed.data as Record<string, unknown>)
