@@ -1,0 +1,184 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  displayName String
+  avatarUrl   String?
+  role        UserRole @default(member)
+  timezone    String   @default("UTC")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  agents               Agent[]
+  apiKeys              ApiKey[]
+  agentVersionsCreated AgentVersion[]         @relation("AgentVersionCreatedBy")
+  lifecycleTransitions LifecycleTransition[]   @relation("LifecycleTransitionBy")
+  publishedListings    MarketplaceListing[]    @relation("ListingAuthor")
+  installedListings    UserInstalledListing[]
+}
+
+enum UserRole {
+  owner
+  admin
+  member
+  viewer
+}
+
+model Agent {
+  id             String         @id @default(cuid())
+  name           String
+  description    String
+  type           AgentType
+  model          ModelProvider
+  systemPrompt   String         @db.Text
+  maxTokens      Int
+  temperature    Float
+  tools          AgentTool[]
+  status         AgentStatus    @default(inactive)
+  lifecycleStage LifecycleStage @default(development)
+  version        String         @default("1.0.0")
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  createdBy      String
+  creator        User           @relation(fields: [createdBy], references: [id])
+
+  versions    AgentVersion[]
+  transitions LifecycleTransition[]
+  listing     MarketplaceListing?
+
+enum AgentType {
+  customer_support
+  analytics
+  creative
+  productivity
+  research
+  communication
+  custom
+}
+
+enum ModelProvider {
+  gpt_4o
+  gpt_4
+  gpt_3_5_turbo
+  claude_3_opus
+  claude_3_sonnet
+  llama_3_70b
+}
+
+enum AgentTool {
+  web_search
+  database_query
+  file_access
+  email_sending
+  calendar_access
+  code_execution
+}
+
+enum AgentStatus {
+  active
+  inactive
+  error
+}
+
+enum LifecycleStage {
+  development
+  production
+  maintenance
+  retirement
+}
+
+model AgentVersion {
+  id            String         @id @default(cuid())
+  agentId       String
+  agent         Agent          @relation(fields: [agentId], references: [id])
+  versionNumber String
+  changelog     String         @db.Text
+  stage         LifecycleStage
+  createdAt     DateTime       @default(now())
+  // FK to User: use onDelete: SetNull to preserve history if the user is deleted
+  createdById   String?
+  createdByUser User?          @relation("AgentVersionCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+}
+
+model LifecycleTransition {
+  id               String         @id @default(cuid())
+  agentId          String
+  agent            Agent          @relation(fields: [agentId], references: [id])
+  fromStage        LifecycleStage
+  toStage          LifecycleStage
+  transitionedAt   DateTime       @default(now())
+  // FK to User: use onDelete: SetNull to preserve history if the user is deleted
+  transitionedById String?
+  transitionedBy   User?          @relation("LifecycleTransitionBy", fields: [transitionedById], references: [id], onDelete: SetNull)
+  reason           String?
+}
+
+// Per-listing metadata (no per-user install state here).
+// ⚠ isInstalled was removed: installation is inherently per-user and is now
+// tracked via UserInstalledListing below. Storing it on the listing would affect
+// all users when one user installs/uninstalls.
+model MarketplaceListing {
+  id            String    @id @default(cuid())
+  agentId       String    @unique
+  agent         Agent     @relation(fields: [agentId], references: [id])
+  title         String
+  description   String    @db.Text
+  category      AgentType
+  authorId      String?
+  author        User?     @relation("ListingAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  authorName    String
+  rating        Float     @default(0)
+  reviewCount   Int       @default(0)
+  downloadCount Int       @default(0)
+  version       String
+  isFeatured    Boolean   @default(false)
+  iconName      String?
+  publishedAt   DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  installedBy UserInstalledListing[]
+}
+
+// Join table: tracks which users have installed which marketplace listings,
+// and which version they have installed.
+model UserInstalledListing {
+  id               String             @id @default(cuid())
+  userId           String
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listingId        String
+  listing          MarketplaceListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  installedVersion String
+  installedAt      DateTime           @default(now())
+
+  @@unique([userId, listingId])
+}
+
+model ApiKey {
+  id          String             @id @default(cuid())
+  userId      String
+  user        User               @relation(fields: [userId], references: [id])
+  label       String
+  keyHash     String             @unique
+  maskedKey   String
+  permissions ApiKeyPermission[]
+  createdAt   DateTime           @default(now())
+  lastUsedAt  DateTime?
+  revokedAt   DateTime?
+}
+
+enum ApiKeyPermission {
+  read
+  write
+  admin
+}

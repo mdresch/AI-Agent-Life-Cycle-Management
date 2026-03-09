@@ -4,82 +4,48 @@ import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Loader2, Upload, Plus, X } from "lucide-react"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
+import { mockAgents } from "@/lib/mock-data/agents"
 
 const publishFormSchema = z.object({
-  name: z.string().min(3, {
-    message: "Agent name must be at least 3 characters.",
-  }),
-  description: z.string().min(10, {
-    message: "Description must be at least 10 characters.",
-  }),
-  category: z.string({
-    required_error: "Please select a category.",
-  }),
-  tags: z.array(z.string()).min(1, {
-    message: "Please add at least one tag.",
-  }),
-  pricingModel: z.string({
-    required_error: "Please select a pricing model.",
-  }),
-  price: z.string().optional(),
-  termsAgreed: z.boolean().refine((value) => value === true, {
-    message: "You must agree to the terms and conditions.",
-  }),
+  agentId: z.string({ required_error: "Please select an agent." }),
+  title: z.string().min(5, "Title must be at least 5 characters."),
+  description: z.string().min(50, "Description must be at least 50 characters."),
+  category: z.enum(
+    ["customer-support", "analytics", "creative", "productivity", "research", "communication", "custom"],
+    { required_error: "Please select a category." },
+  ),
+  version: z.string().regex(/^\d+\.\d+\.\d+$/, "Version must be semver (e.g. 1.0.0)."),
 })
 
 type PublishFormValues = z.infer<typeof publishFormSchema>
 
 export function MarketplacePublish() {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [currentTag, setCurrentTag] = useState("")
 
   const form = useForm<PublishFormValues>({
     resolver: zodResolver(publishFormSchema),
     defaultValues: {
-      name: "",
+      agentId: "",
+      title: "",
       description: "",
-      category: "",
-      tags: [],
-      pricingModel: "free",
-      price: "",
-      termsAgreed: false,
+      version: "",
     },
   })
 
-  const watchPricingModel = form.watch("pricingModel")
-  const watchTags = form.watch("tags")
-
-  const addTag = () => {
-    if (currentTag && !watchTags.includes(currentTag)) {
-      form.setValue("tags", [...watchTags, currentTag])
-      setCurrentTag("")
-    }
-  }
-
-  const removeTag = (tag: string) => {
-    form.setValue(
-      "tags",
-      watchTags.filter((t) => t !== tag),
-    )
-  }
-
-  function onSubmit(data: PublishFormValues) {
+  function onSubmit(_data: PublishFormValues) {
     setIsSubmitting(true)
-
-    // Simulate API call
     setTimeout(() => {
-      console.log(data)
       setIsSubmitting(false)
-      // Reset form or show success message
+      toast.success("Your agent has been submitted for review")
+      form.reset()
     }, 2000)
   }
 
@@ -87,215 +53,129 @@ export function MarketplacePublish() {
     <Card>
       <CardHeader>
         <CardTitle>Publish Your Agent</CardTitle>
-        <CardDescription>Share your AI agent with the community or sell it on the marketplace</CardDescription>
+        <CardDescription>
+          Submit one of your agents to the marketplace for others to discover and install.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <div className="grid gap-6">
-              <div className="grid gap-3">
-                <h3 className="text-lg font-medium">Basic Information</h3>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="agentId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Agent</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an agent to publish" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {mockAgents.map((agent) => (
+                        <SelectItem key={agent.id} value={agent.id}>
+                          {agent.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>Choose an existing agent from your workspace.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Agent Name</FormLabel>
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Listing Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. Advanced Customer Support Pro" {...field} />
+                  </FormControl>
+                  <FormDescription>A descriptive title for your marketplace listing.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Describe what your agent does, its key features, and use cases. (min 50 characters)"
+                      className="min-h-[120px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    {field.value.length}/50 characters minimum.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid gap-6 sm:grid-cols-2">
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <Input placeholder="My Awesome Agent" {...field} />
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
                       </FormControl>
-                      <FormDescription>A descriptive name for your AI agent.</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Describe what your agent does and its key features..."
-                          className="min-h-[120px]"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        A detailed description of your agent's capabilities and use cases.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a category" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="support">Customer Support</SelectItem>
-                          <SelectItem value="analytics">Data Analytics</SelectItem>
-                          <SelectItem value="creative">Creative & Content</SelectItem>
-                          <SelectItem value="productivity">Productivity</SelectItem>
-                          <SelectItem value="research">Research</SelectItem>
-                          <SelectItem value="communication">Communication</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormDescription>The primary category for your agent.</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="tags"
-                  render={() => (
-                    <FormItem>
-                      <FormLabel>Tags</FormLabel>
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder="Add a tag"
-                          value={currentTag}
-                          onChange={(e) => setCurrentTag(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              e.preventDefault()
-                              addTag()
-                            }
-                          }}
-                        />
-                        <Button type="button" onClick={addTag} variant="outline">
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {watchTags.map((tag) => (
-                          <Badge key={tag} variant="secondary" className="flex items-center gap-1">
-                            {tag}
-                            <button
-                              type="button"
-                              onClick={() => removeTag(tag)}
-                              className="rounded-full hover:bg-muted p-0.5"
-                            >
-                              <X className="h-3 w-3" />
-                              <span className="sr-only">Remove {tag} tag</span>
-                            </button>
-                          </Badge>
-                        ))}
-                      </div>
-                      <FormDescription>Add relevant tags to help users discover your agent.</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid gap-3">
-                <h3 className="text-lg font-medium">Pricing</h3>
-
-                <FormField
-                  control={form.control}
-                  name="pricingModel"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Pricing Model</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select pricing model" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="free">Free</SelectItem>
-                          <SelectItem value="one-time">One-time Purchase</SelectItem>
-                          <SelectItem value="subscription">Subscription</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormDescription>How you want to monetize your agent.</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {watchPricingModel !== "free" && (
-                  <FormField
-                    control={form.control}
-                    name="price"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Price {watchPricingModel === "subscription" && "(per month)"}</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <span className="absolute left-3 top-2.5">$</span>
-                            <Input placeholder="9.99" className="pl-7" {...field} />
-                          </div>
-                        </FormControl>
-                        <FormDescription>Set a competitive price for your agent.</FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      <SelectContent>
+                        <SelectItem value="customer-support">Customer Support</SelectItem>
+                        <SelectItem value="analytics">Analytics</SelectItem>
+                        <SelectItem value="creative">Creative</SelectItem>
+                        <SelectItem value="productivity">Productivity</SelectItem>
+                        <SelectItem value="research">Research</SelectItem>
+                        <SelectItem value="communication">Communication</SelectItem>
+                        <SelectItem value="custom">Custom</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>The primary category for your agent.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </div>
-
-              <div className="grid gap-3">
-                <h3 className="text-lg font-medium">Agent Files</h3>
-
-                <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center">
-                  <Upload className="h-10 w-10 text-muted-foreground mb-2" />
-                  <h4 className="text-sm font-medium">Drag and drop your agent files</h4>
-                  <p className="text-xs text-muted-foreground mt-1">Or click to browse files (max 50MB)</p>
-                  <Button variant="outline" className="mt-4">
-                    Select Files
-                  </Button>
-                </div>
-              </div>
+              />
 
               <FormField
                 control={form.control}
-                name="termsAgreed"
+                name="version"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormItem>
+                    <FormLabel>Version</FormLabel>
                     <FormControl>
-                      <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                      <Input placeholder="e.g. 1.0.0" {...field} />
                     </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Terms and Conditions</FormLabel>
-                      <FormDescription>
-                        I agree to the marketplace terms and conditions, and confirm that my agent complies with all
-                        guidelines.
-                      </FormDescription>
-                    </div>
+                    <FormDescription>Semantic version (major.minor.patch).</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
 
-            <CardFooter className="flex justify-end px-0">
+            <div className="flex justify-end">
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isSubmitting ? "Publishing..." : "Publish Agent"}
+                {isSubmitting ? "Submitting..." : "Submit for Review"}
               </Button>
-            </CardFooter>
+            </div>
           </form>
         </Form>
       </CardContent>
     </Card>
   )
 }
-
